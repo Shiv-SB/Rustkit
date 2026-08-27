@@ -1,0 +1,21 @@
+pub mod mean;
+pub mod median;
+pub mod variance;
+pub mod stddev;
+pub mod percentile;
+pub mod covariance;
+pub mod correlation;
+pub mod zscore;
+pub mod histogram;
+pub mod quantile;
+
+pub use mean::mean_f32;
+pub use median::median_f32;
+pub use variance::variance_f32;
+pub use stddev::stddev_f32;
+pub use percentile::percentile_f32;
+pub use covariance::covariance_f32;
+pub use correlation::correlation_f32;
+pub use zscore::zscore_f32;
+pub use histogram::histogram_f32;
+pub use quantile::quantile_f32;

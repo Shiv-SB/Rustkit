@@ -1,0 +1,21 @@
+pub mod new;
+pub mod set;
+pub mod clear;
+pub mod toggle;
+pub mod popcount;
+pub mod and;
+pub mod or;
+pub mod xor;
+pub mod next_set_bit;
+pub mod cardinality;
+
+pub use new::new_bitset;
+pub use set::set_bit;
+pub use clear::clear_bit;
+pub use toggle::toggle_bit;
+pub use popcount::popcount;
+pub use and::bitset_and;
+pub use or::bitset_or;
+pub use xor::bitset_xor;
+pub use next_set_bit::next_set_bit;
+pub use cardinality::cardinality;

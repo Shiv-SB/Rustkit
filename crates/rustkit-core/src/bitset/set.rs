@@ -1,0 +1,3 @@
+pub fn set_bit(bits: &mut [u64], index: usize) {
+    todo!()
+}
