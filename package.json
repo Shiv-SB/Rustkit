@@ -2,11 +2,33 @@
   "name": "rustkit",
   "module": "index.ts",
   "version": "0.1.0",
+  "description": "High performance primitives for Bun, powered by Rust",
   "type": "module",
+
   "scripts": {
     "typecheck": "tsc --noEmit",
     "compile:rs": "cargo build --release -p rustkit-ffi",
     "bench": "bun benchmarks/benchmark"
+  },
+  "license": "MIT",
+  "keywords": [
+    "bun",
+    "bun-ffi",
+    "rust",
+    "crypto",
+    "math",
+    "bitset",
+    "distance",
+    "entropy",
+    "geohash",
+    "matrix",
+    "quantile",
+    "stats",
+    "string",
+    "vector"
+  ],
+  "engines": {
+    "bun": ">=1.4.0"
   },
   "devDependencies": {
     "@types/bun": "1.4.0",
