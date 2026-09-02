@@ -291,17 +291,17 @@ tests/<module>.test.ts                     # 5. tests
 ### Commands
 
 ```bash
-bun run compile:rs    # build the Rust cdylib (required before any test run)
+bun compile:rs    # build the Rust cdylib (required before any test run)
 bun test              # TS test suite (coverage always on)
-bun run typecheck     # tsc --noEmit
+bun typecheck     # tsc --noEmit
 bun run build         # bundle dist/ (index.js + .d.ts)
-bun run build:platforms   # build all 6 platform binaries into platforms/
-bun run verify:platforms  # assert all 6 platform binaries exist
-bun run smoke         # pack + install tarball in a temp project + exercise all modules
-bun run release       # full release pipeline (dry-run; pass --publish to ship)
+bun build:platforms   # build all 6 platform binaries into platforms/
+bun verify:platforms  # assert all 6 platform binaries exist
+bun smoke         # pack + install tarball in a temp project + exercise all modules
+bun release       # full release pipeline (dry-run; pass --publish to ship)
 ```
 
-Rust unit tests (if added) run separately: `cargo test -p rustkit-core`.
+Rust unit tests run separately: `cargo test`.
 
 ## License
 
