@@ -159,23 +159,135 @@ export function eye(
     return out;
 }
 
-export function reshape(
+export function scale(
     a: Float32Array,
+    scalar: number,
     rows: number,
     cols: number
 ): Float32Array {
     if (a.length !== rows * cols) {
-        throw new Error("Total elements must equal rows * cols");
+        throw new Error("Matrix dimensions mismatch");
     }
 
     const out = new Float32Array(rows * cols);
 
-    nativeMatrix.symbols.rk_matrix_reshape(
+    nativeMatrix.symbols.rk_matrix_scale_f32(
         ptr(a),
+        scalar,
         ptr(out),
         rows,
         cols
     );
+
+    return out;
+}
+
+export function hadamard(
+    a: Float32Array,
+    b: Float32Array,
+    rows: number,
+    cols: number
+): Float32Array {
+    if (a.length !== rows * cols || b.length !== rows * cols) {
+        throw new Error("Matrix dimensions mismatch");
+    }
+
+    const out = new Float32Array(rows * cols);
+
+    nativeMatrix.symbols.rk_matrix_hadamard_f32(
+        ptr(a),
+        ptr(b),
+        ptr(out),
+        rows,
+        cols
+    );
+
+    return out;
+}
+
+export function frobeniusNorm(
+    a: Float32Array,
+    rows: number,
+    cols: number
+): number {
+    if (a.length !== rows * cols) {
+        throw new Error("Matrix dimensions mismatch");
+    }
+
+    return nativeMatrix.symbols.rk_matrix_frobenius_norm_f32(
+        ptr(a),
+        rows,
+        cols
+    );
+}
+
+export function luDecompose(
+    a: Float32Array,
+    n: number
+): { l: Float32Array; u: Float32Array } {
+    if (a.length !== n * n) {
+        throw new Error("Matrix must be square");
+    }
+
+    const l = new Float32Array(n * n);
+    const u = new Float32Array(n * n);
+
+    const success = nativeMatrix.symbols.rk_matrix_lu_decompose_f32(
+        ptr(a),
+        ptr(l),
+        ptr(u),
+        n
+    );
+
+    if (!success) {
+        throw new Error("Matrix cannot be LU decomposed");
+    }
+
+    return { l, u };
+}
+
+export function cholesky(
+    a: Float32Array,
+    n: number
+): Float32Array {
+    if (a.length !== n * n) {
+        throw new Error("Matrix must be square");
+    }
+
+    const out = new Float32Array(n * n);
+
+    const success = nativeMatrix.symbols.rk_matrix_cholesky_f32(
+        ptr(a),
+        ptr(out),
+        n
+    );
+
+    if (!success) {
+        throw new Error("Matrix is not positive-definite");
+    }
+
+    return out;
+}
+
+export function eigenvalues(
+    a: Float32Array,
+    n: number
+): Float32Array {
+    if (a.length !== n * n) {
+        throw new Error("Matrix must be square");
+    }
+
+    const out = new Float32Array(n);
+
+    const success = nativeMatrix.symbols.rk_matrix_eigenvalues_f32(
+        ptr(a),
+        ptr(out),
+        n
+    );
+
+    if (!success) {
+        throw new Error("Eigenvalue computation failed");
+    }
 
     return out;
 }

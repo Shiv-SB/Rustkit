@@ -7,12 +7,12 @@ export function levenshtein(a: string, b: string): number {
     const aBytes = aEncoder.encode(a);
     const bBytes = bEncoder.encode(b);
 
-    return nativeString.symbols.rk_string_levenshtein(
+    return Number(nativeString.symbols.rk_string_levenshtein(
         ptr(aBytes),
         aBytes.length,
         ptr(bBytes),
         bBytes.length
-    );
+    ));
 }
 
 export function hamming(a: string, b: string): number {
@@ -26,12 +26,12 @@ export function hamming(a: string, b: string): number {
         throw new Error("Strings must have the same length");
     }
 
-    return nativeString.symbols.rk_string_hamming(
+    return Number(nativeString.symbols.rk_string_hamming(
         ptr(aBytes),
         aBytes.length,
         ptr(bBytes),
         bBytes.length
-    );
+    ));
 }
 
 export function fuzzyMatch(
@@ -53,7 +53,7 @@ export function fuzzyMatch(
         ptr(out)
     );
 
-    return found ? out[0] : null;
+    return found ? out[0]! : null;
 }
 
 export function longestCommonSubseq(a: string, b: string): number {
@@ -62,12 +62,12 @@ export function longestCommonSubseq(a: string, b: string): number {
     const aBytes = encoder.encode(a);
     const bBytes = encoder.encode(b);
 
-    return nativeString.symbols.rk_string_longest_common_subseq(
+    return Number(nativeString.symbols.rk_string_longest_common_subseq(
         ptr(aBytes),
         aBytes.length,
         ptr(bBytes),
         bBytes.length
-    );
+    ));
 }
 
 export function longestCommonSubstr(a: string, b: string): number {
@@ -76,10 +76,68 @@ export function longestCommonSubstr(a: string, b: string): number {
     const aBytes = encoder.encode(a);
     const bBytes = encoder.encode(b);
 
-    return nativeString.symbols.rk_string_longest_common_substr(
+    return Number(nativeString.symbols.rk_string_longest_common_substr(
+        ptr(aBytes),
+        aBytes.length,
+        ptr(bBytes),
+        bBytes.length
+    ));
+}
+
+export function damerauLevenshtein(a: string, b: string): number {
+    const encoder = new TextEncoder();
+
+    const aBytes = encoder.encode(a);
+    const bBytes = encoder.encode(b);
+
+    return Number(nativeString.symbols.rk_string_damerau_levenshtein(
+        ptr(aBytes),
+        aBytes.length,
+        ptr(bBytes),
+        bBytes.length
+    ));
+}
+
+export function jaroWinkler(a: string, b: string): number {
+    const encoder = new TextEncoder();
+
+    const aBytes = encoder.encode(a);
+    const bBytes = encoder.encode(b);
+
+    return nativeString.symbols.rk_string_jaro_winkler(
         ptr(aBytes),
         aBytes.length,
         ptr(bBytes),
         bBytes.length
     );
+}
+
+export function trigramSimilarity(a: string, b: string): number {
+    const encoder = new TextEncoder();
+
+    const aBytes = encoder.encode(a);
+    const bBytes = encoder.encode(b);
+
+    return nativeString.symbols.rk_string_trigram_similarity(
+        ptr(aBytes),
+        aBytes.length,
+        ptr(bBytes),
+        bBytes.length
+    );
+}
+
+export function soundex(input: string): string {
+    const encoder = new TextEncoder();
+
+    const inputBytes = encoder.encode(input);
+
+    const out = new Uint8Array(4);
+
+    nativeString.symbols.rk_string_soundex(
+        ptr(inputBytes),
+        inputBytes.length,
+        ptr(out)
+    );
+
+    return new TextDecoder().decode(out);
 }

@@ -107,3 +107,69 @@ describe("geohash.distance", () => {
         expect(dist).toBeLessThan(1200);
     });
 });
+
+describe("geohash.isValid", () => {
+    test("should return true for valid geohash", () => {
+        expect(geohash.isValid("u09tun")).toBe(true);
+    });
+
+    test("should return true for single character", () => {
+        expect(geohash.isValid("s")).toBe(true);
+    });
+
+    test("should return false for invalid characters", () => {
+        expect(geohash.isValid("abc!@#")).toBe(false);
+    });
+
+    test("should return false for empty string", () => {
+        expect(geohash.isValid("")).toBe(false);
+    });
+});
+
+describe("geohash.allNeighbors", () => {
+    test("should return 8 neighbors", () => {
+        const hash = geohash.encode(48.8566, 2.3522, 6);
+        const neighbors = geohash.allNeighbors(hash);
+        expect(neighbors.length).toBe(8);
+    });
+
+    test("should return strings of same length", () => {
+        const hash = geohash.encode(48.8566, 2.3522, 5);
+        const neighbors = geohash.allNeighbors(hash);
+        for (const n of neighbors) {
+            expect(n.length).toBe(5);
+        }
+    });
+
+    test("should not include the original hash", () => {
+        const hash = geohash.encode(48.8566, 2.3522, 6);
+        const neighbors = geohash.allNeighbors(hash);
+        expect(neighbors).not.toContain(hash);
+    });
+});
+
+describe("geohash.bbox", () => {
+    test("should return bounding box", () => {
+        const result = geohash.bbox("u09tun");
+        expect(typeof result.minLat).toBe("number");
+        expect(typeof result.minLng).toBe("number");
+        expect(typeof result.maxLat).toBe("number");
+        expect(typeof result.maxLng).toBe("number");
+    });
+
+    test("should have min <= max", () => {
+        const result = geohash.bbox("u09tun");
+        expect(result.minLat).toBeLessThanOrEqual(result.maxLat);
+        expect(result.minLng).toBeLessThanOrEqual(result.maxLng);
+    });
+
+    test("should contain the decoded center point", () => {
+        const hash = "u09tun";
+        const { lat, lng } = geohash.decode(hash);
+        const box = geohash.bbox(hash);
+        expect(lat).toBeGreaterThanOrEqual(box.minLat);
+        expect(lat).toBeLessThanOrEqual(box.maxLat);
+        expect(lng).toBeGreaterThanOrEqual(box.minLng);
+        expect(lng).toBeLessThanOrEqual(box.maxLng);
+    });
+});

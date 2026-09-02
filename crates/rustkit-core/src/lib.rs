@@ -1,10 +1,12 @@
 pub mod vector;
 pub mod matrix;
 pub mod stats;
-pub mod sort;
-pub mod search;
 pub mod bitset;
 pub mod string;
 pub mod geohash;
 pub mod crypto;
 pub mod quantile;
+pub mod distance;
+pub mod fft;
+pub mod entropy;
+pub mod quantize;

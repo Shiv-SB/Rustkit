@@ -238,27 +238,109 @@ describe("matrix.eye", () => {
     });
 });
 
-describe("matrix.reshape", () => {
-    test("should reshape 1D to 2D", () => {
-        const a = new Float32Array([1, 2, 3, 4, 5, 6]);
-        const result = matrix.reshape(a, 2, 3);
-        expect(result).toEqual(new Float32Array([1, 2, 3, 4, 5, 6]));
+describe("matrix.scale", () => {
+    test("should scale matrix by scalar", () => {
+        expect(matrix.scale(new Float32Array([1, 2, 3, 4]), 3, 2, 2)).toEqual(new Float32Array([3, 6, 9, 12]));
     });
 
-    test("should reshape to same total elements", () => {
+    test("should handle scale by zero", () => {
+        expect(matrix.scale(new Float32Array([1, 2, 3, 4]), 0, 2, 2)).toEqual(new Float32Array([0, 0, 0, 0]));
+    });
+
+    test("should handle negative scalar", () => {
+        expect(matrix.scale(new Float32Array([1, -2]), -1, 1, 2)).toEqual(new Float32Array([-1, 2]));
+    });
+
+    test("should throw on dimension mismatch", () => {
+        expect(() => matrix.scale(new Float32Array([1, 2, 3]), 2, 2, 2)).toThrow("Matrix dimensions mismatch");
+    });
+
+    test("should not mutate original", () => {
         const a = new Float32Array([1, 2, 3, 4]);
-        const result = matrix.reshape(a, 1, 4);
-        expect(result).toEqual(new Float32Array([1, 2, 3, 4]));
+        matrix.scale(a, 3, 2, 2);
+        expect(a).toEqual(new Float32Array([1, 2, 3, 4]));
+    });
+});
+
+describe("matrix.hadamard", () => {
+    test("should compute element-wise product", () => {
+        expect(matrix.hadamard(new Float32Array([1, 2, 3, 4]), new Float32Array([5, 6, 7, 8]), 2, 2)).toEqual(new Float32Array([5, 12, 21, 32]));
     });
 
-    test("should reshape to single column", () => {
+    test("should return zeros when multiplied by zero matrix", () => {
         const a = new Float32Array([1, 2, 3, 4]);
-        const result = matrix.reshape(a, 4, 1);
-        expect(result).toEqual(new Float32Array([1, 2, 3, 4]));
+        const zero = new Float32Array([0, 0, 0, 0]);
+        expect(matrix.hadamard(a, zero, 2, 2)).toEqual(zero);
     });
 
-    test("should throw when elements don't match", () => {
-        const a = new Float32Array([1, 2, 3]);
-        expect(() => matrix.reshape(a, 2, 2)).toThrow("Total elements must equal rows * cols");
+    test("should throw on dimension mismatch", () => {
+        expect(() => matrix.hadamard(new Float32Array([1, 2]), new Float32Array([1]), 2, 1)).toThrow("Matrix dimensions mismatch");
+    });
+});
+
+describe("matrix.frobeniusNorm", () => {
+    test("should compute Frobenius norm", () => {
+        // sqrt(1+4+9+16) = sqrt(30)
+        expect(matrix.frobeniusNorm(new Float32Array([1, 2, 3, 4]), 2, 2)).toBeCloseTo(Math.sqrt(30), 4);
+    });
+
+    test("should return 0 for zero matrix", () => {
+        expect(matrix.frobeniusNorm(new Float32Array([0, 0, 0, 0]), 2, 2)).toBe(0);
+    });
+
+    test("should throw on dimension mismatch", () => {
+        expect(() => matrix.frobeniusNorm(new Float32Array([1, 2, 3]), 2, 2)).toThrow("Matrix dimensions mismatch");
+    });
+});
+
+describe("matrix.luDecompose", () => {
+    test("should decompose 2x2 matrix", () => {
+        const a = new Float32Array([2, 1, 4, 5]);
+        const { l, u } = matrix.luDecompose(a, 2);
+        expect(l).toBeInstanceOf(Float32Array);
+        expect(u).toBeInstanceOf(Float32Array);
+        expect(l.length).toBe(4);
+        expect(u.length).toBe(4);
+    });
+
+    test("should throw on non-square matrix", () => {
+        expect(() => matrix.luDecompose(new Float32Array([1, 2, 3, 4, 5, 6]), 2)).toThrow("Matrix must be square");
+    });
+});
+
+describe("matrix.cholesky", () => {
+    test("should decompose positive-definite matrix", () => {
+        // [[4, 2], [2, 3]] is positive-definite
+        const a = new Float32Array([4, 2, 2, 3]);
+        const l = matrix.cholesky(a, 2);
+        expect(l).toBeInstanceOf(Float32Array);
+        expect(l.length).toBe(4);
+    });
+
+    test("should throw on non-square matrix", () => {
+        expect(() => matrix.cholesky(new Float32Array([1, 2, 3, 4, 5, 6]), 2)).toThrow("Matrix must be square");
+    });
+});
+
+describe("matrix.eigenvalues", () => {
+    test("should compute eigenvalues of diagonal matrix", () => {
+        const a = new Float32Array([3, 0, 0, 5]);
+        const result = matrix.eigenvalues(a, 2);
+        expect(result).toBeInstanceOf(Float32Array);
+        expect(result.length).toBe(2);
+        const sorted = Array.from(result).sort((a, b) => a - b);
+        expect(sorted[0]).toBeCloseTo(3, 4);
+        expect(sorted[1]).toBeCloseTo(5, 4);
+    });
+
+    test("should compute eigenvalues of identity", () => {
+        const a = new Float32Array([1, 0, 0, 1]);
+        const result = matrix.eigenvalues(a, 2);
+        expect(result[0]).toBeCloseTo(1, 4);
+        expect(result[1]).toBeCloseTo(1, 4);
+    });
+
+    test("should throw on non-square matrix", () => {
+        expect(() => matrix.eigenvalues(new Float32Array([1, 2, 3, 4, 5, 6]), 2)).toThrow("Matrix must be square");
     });
 });

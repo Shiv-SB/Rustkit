@@ -180,35 +180,6 @@ pub unsafe extern "C" fn rk_vector_argmax_f32(
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn rk_vector_fill_f32(
-    out: *mut f32,
-    val: f32,
-    len: usize,
-) {
-    if out.is_null() {
-        return;
-    }
-
-    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, len) };
-
-    rustkit_core::vector::fill_f32(out_slice, val);
-}
-
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn rk_vector_zero_f32(
-    out: *mut f32,
-    len: usize,
-) {
-    if out.is_null() {
-        return;
-    }
-
-    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, len) };
-
-    rustkit_core::vector::zero_f32(out_slice);
-}
-
-#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rk_vector_sum_f32(
     a: *const f32,
     len: usize,
@@ -272,15 +243,148 @@ pub unsafe extern "C" fn rk_vector_clamp_f32(
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn rk_vector_sort_f32(
-    a: *mut f32,
+pub unsafe extern "C" fn rk_vector_abs_f32(
+    a: *const f32,
+    out: *mut f32,
     len: usize,
 ) {
-    if a.is_null() {
+    if a.is_null() || out.is_null() {
         return;
     }
 
-    let a_slice = unsafe { std::slice::from_raw_parts_mut(a, len) };
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, len) };
 
-    rustkit_core::vector::sort_f32(a_slice);
+    rustkit_core::vector::abs_f32(a_slice, out_slice);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_vector_min_f32(
+    a: *const f32,
+    b: *const f32,
+    out: *mut f32,
+    len: usize,
+) {
+    if a.is_null() || b.is_null() || out.is_null() {
+        return;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+    let b_slice = unsafe { std::slice::from_raw_parts(b, len) };
+    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, len) };
+
+    rustkit_core::vector::min_f32(a_slice, b_slice, out_slice);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_vector_max_f32(
+    a: *const f32,
+    b: *const f32,
+    out: *mut f32,
+    len: usize,
+) {
+    if a.is_null() || b.is_null() || out.is_null() {
+        return;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+    let b_slice = unsafe { std::slice::from_raw_parts(b, len) };
+    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, len) };
+
+    rustkit_core::vector::max_f32(a_slice, b_slice, out_slice);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_vector_sqrt_f32(
+    a: *const f32,
+    out: *mut f32,
+    len: usize,
+) {
+    if a.is_null() || out.is_null() {
+        return;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, len) };
+
+    rustkit_core::vector::sqrt_f32(a_slice, out_slice);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_vector_reciprocal_f32(
+    a: *const f32,
+    out: *mut f32,
+    len: usize,
+) {
+    if a.is_null() || out.is_null() {
+        return;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, len) };
+
+    rustkit_core::vector::reciprocal_f32(a_slice, out_slice);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_vector_l1_norm_f32(
+    a: *const f32,
+    len: usize,
+) -> f32 {
+    if a.is_null() {
+        return 0.0;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+
+    rustkit_core::vector::l1_norm_f32(a_slice)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_vector_l_inf_norm_f32(
+    a: *const f32,
+    len: usize,
+) -> f32 {
+    if a.is_null() {
+        return 0.0;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+
+    rustkit_core::vector::l_inf_norm_f32(a_slice)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_vector_outer_f32(
+    a: *const f32,
+    b: *const f32,
+    out: *mut f32,
+    rows: usize,
+    cols: usize,
+) {
+    if a.is_null() || b.is_null() || out.is_null() {
+        return;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, rows) };
+    let b_slice = unsafe { std::slice::from_raw_parts(b, cols) };
+    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, rows * cols) };
+
+    rustkit_core::vector::outer_f32(a_slice, b_slice, out_slice, rows, cols);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_vector_argsort_f32(
+    a: *const f32,
+    out: *mut usize,
+    len: usize,
+) {
+    if a.is_null() || out.is_null() {
+        return;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, len) };
+
+    rustkit_core::vector::argsort_f32(a_slice, out_slice);
 }

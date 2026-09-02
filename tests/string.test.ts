@@ -144,3 +144,76 @@ describe("string.longestCommonSubstr", () => {
         expect(string.longestCommonSubstr("a", "a")).toBe(1);
     });
 });
+
+describe("string.damerauLevenshtein", () => {
+    test("should return 0 for identical strings", () => {
+        expect(string.damerauLevenshtein("hello", "hello")).toBe(0);
+    });
+
+    test("should count transposition as 1 edit", () => {
+        expect(string.damerauLevenshtein("ab", "ba")).toBe(1);
+    });
+
+    test("should count insertion as 1 edit", () => {
+        expect(string.damerauLevenshtein("cat", "cats")).toBe(1);
+    });
+
+    test("should handle empty strings", () => {
+        expect(string.damerauLevenshtein("", "abc")).toBe(3);
+    });
+
+    test("should handle both empty", () => {
+        expect(string.damerauLevenshtein("", "")).toBe(0);
+    });
+});
+
+describe("string.jaroWinkler", () => {
+    test("should return 1 for identical strings", () => {
+        expect(string.jaroWinkler("hello", "hello")).toBeCloseTo(1, 4);
+    });
+
+    test("should return 0 for completely different strings", () => {
+        expect(string.jaroWinkler("abc", "xyz")).toBeCloseTo(0, 4);
+    });
+
+    test("should return value between 0 and 1", () => {
+        const result = string.jaroWinkler("martha", "marhta");
+        expect(result).toBeGreaterThanOrEqual(0);
+        expect(result).toBeLessThanOrEqual(1);
+    });
+
+    test("should handle empty strings", () => {
+        expect(string.jaroWinkler("", "")).toBeCloseTo(1, 4);
+    });
+});
+
+describe("string.trigramSimilarity", () => {
+    test("should return 1 for identical strings", () => {
+        expect(string.trigramSimilarity("hello", "hello")).toBeCloseTo(1, 4);
+    });
+
+    test("should return 0 for completely different strings", () => {
+        expect(string.trigramSimilarity("abc", "xyz")).toBeCloseTo(0, 4);
+    });
+
+    test("should handle short strings", () => {
+        const result = string.trigramSimilarity("a", "a");
+        expect(typeof result).toBe("number");
+    });
+});
+
+describe("string.soundex", () => {
+    test("should produce 4-character code", () => {
+        const result = string.soundex("Robert");
+        expect(typeof result).toBe("string");
+        expect(result.length).toBe(4);
+    });
+
+    test("should produce same code for similar names", () => {
+        expect(string.soundex("Robert")).toBe(string.soundex("Rupert"));
+    });
+
+    test("should start with first letter", () => {
+        expect(string.soundex("Ashcraft")[0]).toBe("A");
+    });
+});

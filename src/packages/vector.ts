@@ -262,55 +262,6 @@ export function argmax(
 }
 
 /**
- * Creates a new vector filled with a constant value.
- *
- * @param len - Length of the output vector.
- * @param val - Value to fill each element with.
- * @returns A new Float32Array of length `len` where every element is `val`.
- */
-export function fill(
-    len: number,
-    val: number
-): Float32Array {
-    if (len === 0) {
-        return new Float32Array(0);
-    }
-
-    const out = new Float32Array(len);
-
-    nativeVector.symbols.rk_vector_fill_f32(
-        ptr(out),
-        val,
-        len
-    );
-
-    return out;
-}
-
-/**
- * Creates a new vector filled with zeros.
- *
- * @param len - Length of the output vector.
- * @returns A new Float32Array of length `len` initialized to `0`.
- */
-export function zero(
-    len: number
-): Float32Array {
-    if (len === 0) {
-        return new Float32Array(0);
-    }
-
-    const out = new Float32Array(len);
-
-    nativeVector.symbols.rk_vector_zero_f32(
-        ptr(out),
-        len
-    );
-
-    return out;
-}
-
-/**
  * Returns the sum of all elements in a vector.
  *
  * @param a - Input vector.
@@ -406,19 +357,192 @@ export function clamp(
 }
 
 /**
- * Sorts a vector in ascending order.
+ * Computes the element-wise absolute value of a vector.
  *
- * @param a - Input vector (not mutated).
- * @returns A new Float32Array containing the sorted elements.
+ * @param a - Input vector.
+ * @returns A new Float32Array where each element is `|a[i]|`.
  */
-export function sort(
+export function abs(
     a: Float32Array
 ): Float32Array {
-    const out = new Float32Array(a);
+    const out = new Float32Array(a.length);
 
-    nativeVector.symbols.rk_vector_sort_f32(
+    nativeVector.symbols.rk_vector_abs_f32(
+        ptr(a),
         ptr(out),
-        out.length
+        a.length
+    );
+
+    return out;
+}
+
+/**
+ * Computes the element-wise minimum of two vectors.
+ *
+ * @param a - First input vector.
+ * @param b - Second input vector.
+ * @returns A new Float32Array where each element is `min(a[i], b[i])`.
+ * @throws {Error} If `a` and `b` have different lengths.
+ */
+export function min(
+    a: Float32Array,
+    b: Float32Array
+): Float32Array {
+    if (a.length !== b.length) {
+        throw new Error("Vectors must have the same length");
+    }
+
+    const out = new Float32Array(a.length);
+
+    nativeVector.symbols.rk_vector_min_f32(
+        ptr(a),
+        ptr(b),
+        ptr(out),
+        a.length
+    );
+
+    return out;
+}
+
+/**
+ * Computes the element-wise maximum of two vectors.
+ *
+ * @param a - First input vector.
+ * @param b - Second input vector.
+ * @returns A new Float32Array where each element is `max(a[i], b[i])`.
+ * @throws {Error} If `a` and `b` have different lengths.
+ */
+export function max(
+    a: Float32Array,
+    b: Float32Array
+): Float32Array {
+    if (a.length !== b.length) {
+        throw new Error("Vectors must have the same length");
+    }
+
+    const out = new Float32Array(a.length);
+
+    nativeVector.symbols.rk_vector_max_f32(
+        ptr(a),
+        ptr(b),
+        ptr(out),
+        a.length
+    );
+
+    return out;
+}
+
+/**
+ * Computes the element-wise square root of a vector.
+ *
+ * @param a - Input vector.
+ * @returns A new Float32Array where each element is `sqrt(a[i])`.
+ */
+export function sqrt(
+    a: Float32Array
+): Float32Array {
+    const out = new Float32Array(a.length);
+
+    nativeVector.symbols.rk_vector_sqrt_f32(
+        ptr(a),
+        ptr(out),
+        a.length
+    );
+
+    return out;
+}
+
+/**
+ * Computes the element-wise reciprocal of a vector.
+ *
+ * @param a - Input vector.
+ * @returns A new Float32Array where each element is `1 / a[i]`.
+ */
+export function reciprocal(
+    a: Float32Array
+): Float32Array {
+    const out = new Float32Array(a.length);
+
+    nativeVector.symbols.rk_vector_reciprocal_f32(
+        ptr(a),
+        ptr(out),
+        a.length
+    );
+
+    return out;
+}
+
+/**
+ * Computes the L1 norm (Manhattan norm) of a vector.
+ *
+ * @param a - Input vector.
+ * @returns The L1 norm `sum(|a[i]|)`.
+ */
+export function l1Norm(
+    a: Float32Array
+): number {
+    return nativeVector.symbols.rk_vector_l1_norm_f32(
+        ptr(a),
+        a.length
+    );
+}
+
+/**
+ * Computes the L-infinity norm (Chebyshev norm) of a vector.
+ *
+ * @param a - Input vector.
+ * @returns The L-infinity norm `max(|a[i]|)`.
+ */
+export function lInfNorm(
+    a: Float32Array
+): number {
+    return nativeVector.symbols.rk_vector_l_inf_norm_f32(
+        ptr(a),
+        a.length
+    );
+}
+
+/**
+ * Computes the outer product of two vectors.
+ *
+ * @param a - First input vector (length `rows`).
+ * @param b - Second input vector (length `cols`).
+ * @returns A new Float32Array of length `a.length * b.length` containing
+ * the flattened outer product matrix where element `(i, j)` is `a[i] * b[j]`.
+ */
+export function outer(
+    a: Float32Array,
+    b: Float32Array
+): Float32Array {
+    const out = new Float32Array(a.length * b.length);
+
+    nativeVector.symbols.rk_vector_outer_f32(
+        ptr(a),
+        ptr(b),
+        ptr(out),
+        a.length,
+        b.length
+    );
+
+    return out;
+}
+
+/**
+ * Returns the indices that would sort a vector in ascending order.
+ *
+ * @param a - Input vector (not mutated).
+ * @returns A new Uint32Array of indices such that `a[out[i]]` is in
+ * ascending order.
+ */
+export function argsort(
+    a: Float32Array
+): Uint32Array {
+    const out = new Uint32Array(a.length);
+
+    nativeVector.symbols.rk_vector_argsort_f32(
+        ptr(a),
+        ptr(out),
+        a.length
     );
 
     return out;

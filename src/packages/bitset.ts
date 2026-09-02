@@ -95,9 +95,9 @@ export function nextSetBit(
         ptr(out)
     );
 
-    return found ? out[0] : null;
+    return found ? out[0]! : null;
 }
 
 export function cardinality(bits: BigUint64Array): number {
-    return nativeBitset.symbols.rk_bitset_cardinality(ptr(bits), bits.length);
+    return Number(nativeBitset.symbols.rk_bitset_cardinality(ptr(bits), bits.length));
 }

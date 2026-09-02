@@ -102,3 +102,54 @@ export function quantile(a: Float32Array, q: number): number {
 
     return nativeStats.symbols.rk_stats_quantile_f32(ptr(a), a.length, q);
 }
+
+export function mode(a: Float32Array): number {
+    if (a.length === 0) {
+        throw new Error("Array must not be empty");
+    }
+
+    return nativeStats.symbols.rk_stats_mode_f32(ptr(a), a.length);
+}
+
+export function skewness(a: Float32Array): number {
+    if (a.length === 0) {
+        throw new Error("Array must not be empty");
+    }
+
+    return nativeStats.symbols.rk_stats_skewness_f32(ptr(a), a.length);
+}
+
+export function kurtosis(a: Float32Array): number {
+    if (a.length === 0) {
+        throw new Error("Array must not be empty");
+    }
+
+    return nativeStats.symbols.rk_stats_kurtosis_f32(ptr(a), a.length);
+}
+
+export function geometricMean(a: Float32Array): number {
+    if (a.length === 0) {
+        throw new Error("Array must not be empty");
+    }
+
+    return nativeStats.symbols.rk_stats_geometric_mean_f32(ptr(a), a.length);
+}
+
+export function weightedMean(a: Float32Array, weights: Float32Array): number {
+    if (a.length !== weights.length) {
+        throw new Error("Arrays must have the same length");
+    }
+    if (a.length === 0) {
+        throw new Error("Arrays must not be empty");
+    }
+
+    return nativeStats.symbols.rk_stats_weighted_mean_f32(ptr(a), ptr(weights), a.length);
+}
+
+export function iqr(a: Float32Array): number {
+    if (a.length === 0) {
+        throw new Error("Array must not be empty");
+    }
+
+    return nativeStats.symbols.rk_stats_iqr_f32(ptr(a), a.length);
+}

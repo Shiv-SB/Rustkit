@@ -132,8 +132,9 @@ pub unsafe extern "C" fn rk_matrix_eye_f32(
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn rk_matrix_reshape(
+pub unsafe extern "C" fn rk_matrix_scale_f32(
     a: *const f32,
+    scalar: f32,
     out: *mut f32,
     rows: usize,
     cols: usize,
@@ -145,5 +146,89 @@ pub unsafe extern "C" fn rk_matrix_reshape(
     let a_slice = unsafe { std::slice::from_raw_parts(a, rows * cols) };
     let out_slice = unsafe { std::slice::from_raw_parts_mut(out, rows * cols) };
 
-    rustkit_core::matrix::reshape(a_slice, out_slice, rows, cols);
+    rustkit_core::matrix::scale_f32(a_slice, scalar, out_slice, rows, cols);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_matrix_hadamard_f32(
+    a: *const f32,
+    b: *const f32,
+    out: *mut f32,
+    rows: usize,
+    cols: usize,
+) {
+    if a.is_null() || b.is_null() || out.is_null() {
+        return;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, rows * cols) };
+    let b_slice = unsafe { std::slice::from_raw_parts(b, rows * cols) };
+    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, rows * cols) };
+
+    rustkit_core::matrix::hadamard_f32(a_slice, b_slice, out_slice, rows, cols);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_matrix_frobenius_norm_f32(
+    a: *const f32,
+    rows: usize,
+    cols: usize,
+) -> f32 {
+    if a.is_null() {
+        return 0.0;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, rows * cols) };
+
+    rustkit_core::matrix::frobenius_norm_f32(a_slice, rows, cols)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_matrix_lu_decompose_f32(
+    a: *const f32,
+    out_l: *mut f32,
+    out_u: *mut f32,
+    n: usize,
+) -> bool {
+    if a.is_null() || out_l.is_null() || out_u.is_null() {
+        return false;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, n * n) };
+    let out_l_slice = unsafe { std::slice::from_raw_parts_mut(out_l, n * n) };
+    let out_u_slice = unsafe { std::slice::from_raw_parts_mut(out_u, n * n) };
+
+    rustkit_core::matrix::lu_decompose_f32(a_slice, out_l_slice, out_u_slice, n)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_matrix_cholesky_f32(
+    a: *const f32,
+    out: *mut f32,
+    n: usize,
+) -> bool {
+    if a.is_null() || out.is_null() {
+        return false;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, n * n) };
+    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, n * n) };
+
+    rustkit_core::matrix::cholesky_f32(a_slice, out_slice, n)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_matrix_eigenvalues_f32(
+    a: *const f32,
+    out: *mut f32,
+    n: usize,
+) -> bool {
+    if a.is_null() || out.is_null() {
+        return false;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, n * n) };
+    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, n) };
+
+    rustkit_core::matrix::eigenvalues_f32(a_slice, out_slice, n)
 }

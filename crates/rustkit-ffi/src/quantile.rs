@@ -69,3 +69,136 @@ pub unsafe extern "C" fn rk_quantile_bloom_filter_insert(
 
     rustkit_core::quantile::bloom_filter_insert(bits_slice, num_bits, item_slice, num_hashes);
 }
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_quantile_count_min_sketch_query(
+    table: *const u32,
+    depth: usize,
+    width: usize,
+    item: *const u8,
+    item_len: usize,
+) -> u32 {
+    if table.is_null() || item.is_null() {
+        return 0;
+    }
+
+    let table_slice = unsafe { std::slice::from_raw_parts(table, depth * width) };
+    let item_slice = unsafe { std::slice::from_raw_parts(item, item_len) };
+
+    rustkit_core::quantile::count_min_sketch_query(table_slice, depth, width, item_slice)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_quantile_bloom_filter_contains(
+    bits: *const u64,
+    num_bits: usize,
+    item: *const u8,
+    item_len: usize,
+    num_hashes: usize,
+) -> bool {
+    if bits.is_null() || item.is_null() {
+        return false;
+    }
+
+    let bits_slice = unsafe { std::slice::from_raw_parts(bits, (num_bits + 63) / 64) };
+    let item_slice = unsafe { std::slice::from_raw_parts(item, item_len) };
+
+    rustkit_core::quantile::bloom_filter_contains(bits_slice, num_bits, item_slice, num_hashes)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_quantile_hyperloglog_create(
+    precision: usize,
+    out: *mut u8,
+    out_len: usize,
+) {
+    if out.is_null() {
+        return;
+    }
+
+    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, out_len) };
+    let sketch = rustkit_core::quantile::hyperloglog_create(precision);
+    let n = sketch.len().min(out_len);
+    out_slice[..n].copy_from_slice(&sketch[..n]);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_quantile_hyperloglog_add(
+    sketch: *mut u8,
+    sketch_len: usize,
+    item: *const u8,
+    item_len: usize,
+) {
+    if sketch.is_null() || item.is_null() {
+        return;
+    }
+
+    let sketch_slice = unsafe { std::slice::from_raw_parts_mut(sketch, sketch_len) };
+    let item_slice = unsafe { std::slice::from_raw_parts(item, item_len) };
+
+    rustkit_core::quantile::hyperloglog_add(sketch_slice, item_slice);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_quantile_hyperloglog_estimate(
+    sketch: *const u8,
+    sketch_len: usize,
+) -> f64 {
+    if sketch.is_null() {
+        return 0.0;
+    }
+
+    let sketch_slice = unsafe { std::slice::from_raw_parts(sketch, sketch_len) };
+
+    rustkit_core::quantile::hyperloglog_estimate(sketch_slice)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_quantile_minhash_create(
+    num_hashes: usize,
+    out: *mut u32,
+    out_len: usize,
+) {
+    if out.is_null() {
+        return;
+    }
+
+    let out_slice = unsafe { std::slice::from_raw_parts_mut(out, out_len) };
+    let signature = rustkit_core::quantile::minhash_create(num_hashes);
+    let n = signature.len().min(out_len);
+    out_slice[..n].copy_from_slice(&signature[..n]);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_quantile_minhash_add(
+    signature: *mut u32,
+    signature_len: usize,
+    item: *const u8,
+    item_len: usize,
+) {
+    if signature.is_null() || item.is_null() {
+        return;
+    }
+
+    let signature_slice = unsafe { std::slice::from_raw_parts_mut(signature, signature_len) };
+    let item_slice = unsafe { std::slice::from_raw_parts(item, item_len) };
+
+    rustkit_core::quantile::minhash_add(signature_slice, item_slice);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_quantile_minhash_similarity(
+    a: *const u32,
+    a_len: usize,
+    b: *const u32,
+    b_len: usize,
+) -> f32 {
+    if a.is_null() || b.is_null() {
+        return 0.0;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, a_len) };
+    let b_slice = unsafe { std::slice::from_raw_parts(b, b_len) };
+
+    rustkit_core::quantile::minhash_similarity(a_slice, b_slice)
+}

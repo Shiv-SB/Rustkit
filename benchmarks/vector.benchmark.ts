@@ -78,18 +78,6 @@ summary(() => {
 });
 
 summary(() => {
-    bench("vector.fill", () => {
-        vector.fill(1024, 42.0);
-    });
-});
-
-summary(() => {
-    bench("vector.zero", () => {
-        vector.zero(1024);
-    });
-});
-
-summary(() => {
     bench("vector.sum", () => {
         vector.sum(a);
     });
@@ -110,12 +98,6 @@ summary(() => {
 summary(() => {
     bench("vector.clamp", () => {
         vector.clamp(a, 100, 900);
-    });
-});
-
-summary(() => {
-    bench("vector.sort", () => {
-        vector.sort(a);
     });
 });
 

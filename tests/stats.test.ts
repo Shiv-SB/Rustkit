@@ -248,3 +248,89 @@ describe("stats.quantile", () => {
         expect(() => stats.quantile(new Float32Array([1, 2]), 1.1)).toThrow("Quantile must be between 0 and 1");
     });
 });
+
+describe("stats.mode", () => {
+    test("should return most frequent value", () => {
+        expect(stats.mode(new Float32Array([1, 2, 2, 3, 3, 3]))).toBe(3);
+    });
+
+    test("should return single element", () => {
+        expect(stats.mode(new Float32Array([42]))).toBe(42);
+    });
+
+    test("should throw on empty array", () => {
+        expect(() => stats.mode(new Float32Array([]))).toThrow("Array must not be empty");
+    });
+});
+
+describe("stats.skewness", () => {
+    test("should return 0 for symmetric distribution", () => {
+        expect(stats.skewness(new Float32Array([1, 2, 3, 4, 5]))).toBeCloseTo(0, 4);
+    });
+
+    test("should return positive for right-skewed", () => {
+        expect(stats.skewness(new Float32Array([1, 1, 1, 1, 10]))).toBeGreaterThan(0);
+    });
+
+    test("should throw on empty array", () => {
+        expect(() => stats.skewness(new Float32Array([]))).toThrow("Array must not be empty");
+    });
+});
+
+describe("stats.kurtosis", () => {
+    test("should compute kurtosis", () => {
+        const result = stats.kurtosis(new Float32Array([1, 2, 3, 4, 5]));
+        expect(typeof result).toBe("number");
+    });
+
+    test("should throw on empty array", () => {
+        expect(() => stats.kurtosis(new Float32Array([]))).toThrow("Array must not be empty");
+    });
+});
+
+describe("stats.geometricMean", () => {
+    test("should compute geometric mean", () => {
+        expect(stats.geometricMean(new Float32Array([2, 8]))).toBeCloseTo(4, 4);
+    });
+
+    test("should handle single element", () => {
+        expect(stats.geometricMean(new Float32Array([42]))).toBeCloseTo(42, 4);
+    });
+
+    test("should throw on empty array", () => {
+        expect(() => stats.geometricMean(new Float32Array([]))).toThrow("Array must not be empty");
+    });
+});
+
+describe("stats.weightedMean", () => {
+    test("should compute weighted mean", () => {
+        expect(stats.weightedMean(new Float32Array([10, 20]), new Float32Array([1, 3]))).toBeCloseTo(17.5, 4);
+    });
+
+    test("should equal unweighted mean when weights are equal", () => {
+        expect(stats.weightedMean(new Float32Array([10, 20]), new Float32Array([1, 1]))).toBeCloseTo(15, 4);
+    });
+
+    test("should throw on mismatched lengths", () => {
+        expect(() => stats.weightedMean(new Float32Array([1, 2]), new Float32Array([1]))).toThrow("Arrays must have the same length");
+    });
+
+    test("should throw on empty arrays", () => {
+        expect(() => stats.weightedMean(new Float32Array([]), new Float32Array([]))).toThrow("Arrays must not be empty");
+    });
+});
+
+describe("stats.iqr", () => {
+    test("should compute interquartile range", () => {
+        const result = stats.iqr(new Float32Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+        expect(result).toBeGreaterThan(0);
+    });
+
+    test("should return 0 for identical values", () => {
+        expect(stats.iqr(new Float32Array([5, 5, 5, 5]))).toBe(0);
+    });
+
+    test("should throw on empty array", () => {
+        expect(() => stats.iqr(new Float32Array([]))).toThrow("Array must not be empty");
+    });
+});

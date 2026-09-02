@@ -146,3 +146,89 @@ pub unsafe extern "C" fn rk_stats_quantile_f32(
 
     rustkit_core::stats::quantile_f32(a_slice, q)
 }
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_stats_mode_f32(
+    a: *const f32,
+    len: usize,
+) -> f32 {
+    if a.is_null() || len == 0 {
+        return 0.0;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+
+    rustkit_core::stats::mode_f32(a_slice)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_stats_skewness_f32(
+    a: *const f32,
+    len: usize,
+) -> f32 {
+    if a.is_null() || len == 0 {
+        return 0.0;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+
+    rustkit_core::stats::skewness_f32(a_slice)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_stats_kurtosis_f32(
+    a: *const f32,
+    len: usize,
+) -> f32 {
+    if a.is_null() || len == 0 {
+        return 0.0;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+
+    rustkit_core::stats::kurtosis_f32(a_slice)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_stats_geometric_mean_f32(
+    a: *const f32,
+    len: usize,
+) -> f32 {
+    if a.is_null() || len == 0 {
+        return 0.0;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+
+    rustkit_core::stats::geometric_mean_f32(a_slice)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_stats_weighted_mean_f32(
+    a: *const f32,
+    weights: *const f32,
+    len: usize,
+) -> f32 {
+    if a.is_null() || weights.is_null() || len == 0 {
+        return 0.0;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+    let weights_slice = unsafe { std::slice::from_raw_parts(weights, len) };
+
+    rustkit_core::stats::weighted_mean_f32(a_slice, weights_slice)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_stats_iqr_f32(
+    a: *const f32,
+    len: usize,
+) -> f32 {
+    if a.is_null() || len == 0 {
+        return 0.0;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts(a, len) };
+
+    rustkit_core::stats::iqr_f32(a_slice)
+}

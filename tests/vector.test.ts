@@ -311,50 +311,6 @@ describe("vector.argmax", () => {
     });
 });
 
-describe("vector.fill", () => {
-    test("should fill with specified value", () => {
-        const result = vector.fill(5, 7);
-        expect(result).toEqual(new Float32Array([7, 7, 7, 7, 7]));
-    });
-
-    test("should fill with zero", () => {
-        const result = vector.fill(3, 0);
-        expect(result).toEqual(new Float32Array([0, 0, 0]));
-    });
-
-    test("should fill with negative value", () => {
-        const result = vector.fill(4, -3);
-        expect(result).toEqual(new Float32Array([-3, -3, -3, -3]));
-    });
-
-    test("should handle length 0", () => {
-        const result = vector.fill(0, 5);
-        expect(result.length).toBe(0);
-    });
-
-    test("should handle length 1", () => {
-        const result = vector.fill(1, 99);
-        expect(result).toEqual(new Float32Array([99]));
-    });
-});
-
-describe("vector.zero", () => {
-    test("should create zero-filled vector", () => {
-        const result = vector.zero(5);
-        expect(result).toEqual(new Float32Array([0, 0, 0, 0, 0]));
-    });
-
-    test("should handle length 0", () => {
-        const result = vector.zero(0);
-        expect(result.length).toBe(0);
-    });
-
-    test("should handle length 1", () => {
-        const result = vector.zero(1);
-        expect(result).toEqual(new Float32Array([0]));
-    });
-});
-
 describe("vector.sum", () => {
     test("should sum elements", () => {
         const a = new Float32Array([1, 2, 3, 4]);
@@ -476,40 +432,141 @@ describe("vector.clamp", () => {
     });
 });
 
-describe("vector.sort", () => {
-    test("should sort in ascending order", () => {
-        const a = new Float32Array([5, 3, 1, 4, 2]);
-        expect(vector.sort(a)).toEqual(new Float32Array([1, 2, 3, 4, 5]));
+describe("vector.abs", () => {
+    test("should compute element-wise absolute value", () => {
+        expect(vector.abs(new Float32Array([-3, 2, -1, 4]))).toEqual(new Float32Array([3, 2, 1, 4]));
     });
 
-    test("should handle already sorted", () => {
-        const a = new Float32Array([1, 2, 3, 4]);
-        expect(vector.sort(a)).toEqual(new Float32Array([1, 2, 3, 4]));
-    });
-
-    test("should handle reverse sorted", () => {
-        const a = new Float32Array([5, 4, 3, 2, 1]);
-        expect(vector.sort(a)).toEqual(new Float32Array([1, 2, 3, 4, 5]));
-    });
-
-    test("should handle single element", () => {
-        const a = new Float32Array([42]);
-        expect(vector.sort(a)).toEqual(new Float32Array([42]));
-    });
-
-    test("should handle negative values", () => {
-        const a = new Float32Array([-3, -1, -2]);
-        expect(vector.sort(a)).toEqual(new Float32Array([-3, -2, -1]));
-    });
-
-    test("should handle duplicates", () => {
-        const a = new Float32Array([3, 1, 3, 2, 1]);
-        expect(vector.sort(a)).toEqual(new Float32Array([1, 1, 2, 3, 3]));
+    test("should return zeros for zero vector", () => {
+        expect(vector.abs(new Float32Array([0, 0, 0]))).toEqual(new Float32Array([0, 0, 0]));
     });
 
     test("should not mutate original", () => {
-        const a = new Float32Array([5, 3, 1]);
-        vector.sort(a);
-        expect(a).toEqual(new Float32Array([5, 3, 1]));
+        const a = new Float32Array([-5, -3]);
+        vector.abs(a);
+        expect(a).toEqual(new Float32Array([-5, -3]));
+    });
+});
+
+describe("vector.min", () => {
+    test("should compute element-wise minimum", () => {
+        expect(vector.min(new Float32Array([3, 1, 5]), new Float32Array([2, 4, 1]))).toEqual(new Float32Array([2, 1, 1]));
+    });
+
+    test("should handle identical vectors", () => {
+        const a = new Float32Array([1, 2, 3]);
+        expect(vector.min(a, a)).toEqual(a);
+    });
+
+    test("should throw on mismatched lengths", () => {
+        expect(() => vector.min(new Float32Array([1, 2]), new Float32Array([1]))).toThrow("Vectors must have the same length");
+    });
+});
+
+describe("vector.max", () => {
+    test("should compute element-wise maximum", () => {
+        expect(vector.max(new Float32Array([3, 1, 5]), new Float32Array([2, 4, 1]))).toEqual(new Float32Array([3, 4, 5]));
+    });
+
+    test("should handle negative values", () => {
+        expect(vector.max(new Float32Array([-3, -1]), new Float32Array([-2, -5]))).toEqual(new Float32Array([-2, -1]));
+    });
+
+    test("should throw on mismatched lengths", () => {
+        expect(() => vector.max(new Float32Array([1]), new Float32Array([1, 2]))).toThrow("Vectors must have the same length");
+    });
+});
+
+describe("vector.sqrt", () => {
+    test("should compute element-wise square root", () => {
+        const result = vector.sqrt(new Float32Array([4, 9, 16, 25]));
+        expect(result).toEqual(new Float32Array([2, 3, 4, 5]));
+    });
+
+    test("should handle zero", () => {
+        expect(vector.sqrt(new Float32Array([0]))).toEqual(new Float32Array([0]));
+    });
+
+    test("should not mutate original", () => {
+        const a = new Float32Array([4, 9]);
+        vector.sqrt(a);
+        expect(a).toEqual(new Float32Array([4, 9]));
+    });
+});
+
+describe("vector.reciprocal", () => {
+    test("should compute element-wise reciprocal", () => {
+        const result = vector.reciprocal(new Float32Array([2, 4, 5]));
+        expect(result[0]).toBeCloseTo(0.5, 5);
+        expect(result[1]).toBeCloseTo(0.25, 5);
+        expect(result[2]).toBeCloseTo(0.2, 5);
+    });
+
+    test("should handle single element", () => {
+        expect(vector.reciprocal(new Float32Array([10]))[0]).toBeCloseTo(0.1, 5);
+    });
+});
+
+describe("vector.l1Norm", () => {
+    test("should compute Manhattan norm", () => {
+        expect(vector.l1Norm(new Float32Array([3, -4, 5]))).toBe(12);
+    });
+
+    test("should return 0 for zero vector", () => {
+        expect(vector.l1Norm(new Float32Array([0, 0, 0]))).toBe(0);
+    });
+
+    test("should handle single element", () => {
+        expect(vector.l1Norm(new Float32Array([-7]))).toBe(7);
+    });
+});
+
+describe("vector.lInfNorm", () => {
+    test("should compute Chebyshev norm", () => {
+        expect(vector.lInfNorm(new Float32Array([3, -7, 5]))).toBe(7);
+    });
+
+    test("should return 0 for zero vector", () => {
+        expect(vector.lInfNorm(new Float32Array([0, 0]))).toBe(0);
+    });
+});
+
+describe("vector.outer", () => {
+    test("should compute outer product", () => {
+        const result = vector.outer(new Float32Array([1, 2]), new Float32Array([3, 4, 5]));
+        expect(result).toEqual(new Float32Array([3, 4, 5, 6, 8, 10]));
+    });
+
+    test("should handle single element vectors", () => {
+        expect(vector.outer(new Float32Array([3]), new Float32Array([7]))).toEqual(new Float32Array([21]));
+    });
+
+    test("should produce correct length", () => {
+        const result = vector.outer(new Float32Array([1, 2, 3]), new Float32Array([4, 5]));
+        expect(result.length).toBe(6);
+    });
+});
+
+describe("vector.argsort", () => {
+    test("should return indices that sort the array", () => {
+        const result = vector.argsort(new Float32Array([30, 10, 20]));
+        expect(result).toBeInstanceOf(Uint32Array);
+        // indices should point to values in ascending order: 10, 20, 30
+        expect(result[0]).toBe(1);
+        expect(result[1]).toBe(2);
+        expect(result[2]).toBe(0);
+    });
+
+    test("should return sequential indices for sorted input", () => {
+        const result = vector.argsort(new Float32Array([1, 2, 3]));
+        expect(result[0]).toBe(0);
+        expect(result[1]).toBe(1);
+        expect(result[2]).toBe(2);
+    });
+
+    test("should not mutate original", () => {
+        const a = new Float32Array([3, 1, 2]);
+        vector.argsort(a);
+        expect(a).toEqual(new Float32Array([3, 1, 2]));
     });
 });
