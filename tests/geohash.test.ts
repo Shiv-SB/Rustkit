@@ -31,8 +31,8 @@ describe("geohash.encode", () => {
 describe("geohash.decode", () => {
     test("should decode to coordinates", () => {
         const result = geohash.decode("u09tun");
-        expect(result.lat).toBeCloseTo(53.35, 0);
-        expect(result.lng).toBeCloseTo(-6.26, 0);
+        expect(result.lat).toBeCloseTo(48.86, 0);
+        expect(result.lng).toBeCloseTo(2.29, 0);
     });
 
     test("should decode single character hash", () => {

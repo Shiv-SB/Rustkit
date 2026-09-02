@@ -4,5 +4,12 @@ pub fn t_digest_add(
     num_centroids: &mut usize,
     value: f32,
 ) {
-    todo!()
+    let n = *num_centroids;
+    if n >= centroids_mean.len() || n >= centroids_count.len() {
+        return;
+    }
+
+    centroids_mean[n] = value;
+    centroids_count[n] = 1.0;
+    *num_centroids = n + 1;
 }

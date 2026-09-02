@@ -1,3 +1,4 @@
 pub fn manhattan_f32(a: &[f32], b: &[f32]) -> f32 {
-    todo!()
+    assert_eq!(a.len(), b.len());
+    a.iter().zip(b).map(|(&x, &y)| (x - y).abs()).sum()
 }

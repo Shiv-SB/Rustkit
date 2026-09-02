@@ -1,5 +1,13 @@
 import { nativeGeohash, ptr } from "../native";
 
+// Bun's `ptr()` rejects empty typed arrays (null backing pointer), so pass a
+// dummy 1-byte buffer when the input is empty and rely on the length argument.
+const EMPTY = new Uint8Array(1);
+
+function ffiPtr(bytes: Uint8Array) {
+    return bytes.length === 0 ? ptr(EMPTY) : ptr(bytes);
+}
+
 export function encode(
     lat: number,
     lng: number,
@@ -20,7 +28,7 @@ export function decode(hash: string): { lat: number; lng: number } {
     const lng = new Float64Array(1);
 
     nativeGeohash.symbols.rk_geohash_decode(
-        ptr(hashBytes),
+        ffiPtr(hashBytes),
         hashBytes.length,
         ptr(lat),
         ptr(lng)
@@ -39,7 +47,7 @@ export function neighbor(
     const out = new Uint8Array(hashBytes.length);
 
     nativeGeohash.symbols.rk_geohash_neighbor(
-        ptr(hashBytes),
+        ffiPtr(hashBytes),
         hashBytes.length,
         direction,
         ptr(out)
@@ -62,7 +70,7 @@ export function isValid(hash: string): boolean {
     const hashBytes = encoder.encode(hash);
 
     return nativeGeohash.symbols.rk_geohash_is_valid(
-        ptr(hashBytes),
+        ffiPtr(hashBytes),
         hashBytes.length
     );
 }
@@ -74,7 +82,7 @@ export function allNeighbors(hash: string): string[] {
     const out = new Uint8Array(hashBytes.length * 8);
 
     nativeGeohash.symbols.rk_geohash_all_neighbors(
-        ptr(hashBytes),
+        ffiPtr(hashBytes),
         hashBytes.length,
         ptr(out)
     );
@@ -99,7 +107,7 @@ export function bbox(hash: string): { minLat: number; minLng: number; maxLat: nu
     const maxLng = new Float64Array(1);
 
     nativeGeohash.symbols.rk_geohash_bbox(
-        ptr(hashBytes),
+        ffiPtr(hashBytes),
         hashBytes.length,
         ptr(minLat),
         ptr(minLng),

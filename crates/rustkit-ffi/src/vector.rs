@@ -376,7 +376,7 @@ pub unsafe extern "C" fn rk_vector_outer_f32(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn rk_vector_argsort_f32(
     a: *const f32,
-    out: *mut usize,
+    out: *mut u32,
     len: usize,
 ) {
     if a.is_null() || out.is_null() {

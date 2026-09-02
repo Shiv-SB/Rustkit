@@ -112,7 +112,7 @@ pub unsafe extern "C" fn rk_bitset_next_set_bit(
     bits: *const u64,
     len: usize,
     from: usize,
-    out: *mut usize,
+    out: *mut u32,
 ) -> bool {
     if bits.is_null() || out.is_null() {
         return false;
@@ -122,7 +122,7 @@ pub unsafe extern "C" fn rk_bitset_next_set_bit(
 
     match rustkit_core::bitset::next_set_bit(bits_slice, from) {
         Some(idx) => {
-            unsafe { *out = idx; }
+            unsafe { *out = idx as u32; }
             true
         }
         None => false,

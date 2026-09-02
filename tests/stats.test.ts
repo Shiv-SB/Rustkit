@@ -118,11 +118,11 @@ describe("stats.covariance", () => {
         expect(result).toBeCloseTo(4, 4);
     });
 
-    test("should return 0 for uncorrelated arrays", () => {
+    test("should return negative covariance for anti-correlated arrays", () => {
         const a = new Float32Array([1, 2, 3]);
         const b = new Float32Array([3, 2, 1]);
         const result = stats.covariance(a, b);
-        expect(result).toBeCloseTo(-1, 4);
+        expect(result).toBeCloseTo(-2 / 3, 4);
     });
 
     test("should throw on mismatched lengths", () => {

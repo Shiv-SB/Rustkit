@@ -38,7 +38,7 @@ pub unsafe extern "C" fn rk_string_fuzzy_match(
     pattern_len: usize,
     text: *const u8,
     text_len: usize,
-    out: *mut usize,
+    out: *mut u32,
 ) -> bool {
     if pattern.is_null() || text.is_null() || out.is_null() {
         return false;
@@ -49,7 +49,7 @@ pub unsafe extern "C" fn rk_string_fuzzy_match(
 
     match rustkit_core::string::fuzzy_match(pattern_slice, text_slice) {
         Some(idx) => {
-            unsafe { *out = idx; }
+            unsafe { *out = idx as u32; }
             true
         }
         None => false,

@@ -4,7 +4,9 @@ export function create(numBits: number): BigUint64Array {
     const numWords = Math.ceil(numBits / 64);
     const bits = new BigUint64Array(numWords);
 
-    nativeBitset.symbols.rk_bitset_new(ptr(bits), numWords);
+    if (numWords > 0) {
+        nativeBitset.symbols.rk_bitset_new(ptr(bits), numWords);
+    }
 
     return bits;
 }

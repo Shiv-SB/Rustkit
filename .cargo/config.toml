@@ -1,0 +1,5 @@
+# Let LLVM auto-vectorize against the host CPU's full instruction set
+# (NEON/FP16 on Apple Silicon). The dylib is loaded locally, so the
+# machine-specific binary is intentional.
+[build]
+rustflags = ["-C", "target-cpu=native"]

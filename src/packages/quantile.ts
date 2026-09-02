@@ -20,7 +20,7 @@ export function tDigestAdd(digest: TDigest, value: number): void {
     nativeQuantile.symbols.rk_quantile_t_digest_add(
         ptr(digest.means),
         ptr(digest.counts),
-        ptr(new Uint32Array([digest.numCentroids])),
+        ptr(new BigUint64Array([BigInt(digest.numCentroids)])),
         digest.maxCentroids,
         value
     );

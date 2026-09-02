@@ -1,35 +1,41 @@
 import { nativeString, ptr } from "../native";
 
-export function levenshtein(a: string, b: string): number {
-    const aEncoder = new TextEncoder();
-    const bEncoder = new TextEncoder();
+// Bun's `ptr()` rejects empty typed arrays (null backing pointer), so pass a
+// dummy 1-byte buffer when the input is empty and rely on the length argument.
+const EMPTY = new Uint8Array(1);
 
-    const aBytes = aEncoder.encode(a);
-    const bBytes = bEncoder.encode(b);
+function ffiPtr(bytes: Uint8Array) {
+    return bytes.length === 0 ? ptr(EMPTY) : ptr(bytes);
+}
+
+export function levenshtein(a: string, b: string): number {
+    const encoder = new TextEncoder();
+
+    const aBytes = encoder.encode(a);
+    const bBytes = encoder.encode(b);
 
     return Number(nativeString.symbols.rk_string_levenshtein(
-        ptr(aBytes),
+        ffiPtr(aBytes),
         aBytes.length,
-        ptr(bBytes),
+        ffiPtr(bBytes),
         bBytes.length
     ));
 }
 
 export function hamming(a: string, b: string): number {
-    const aEncoder = new TextEncoder();
-    const bEncoder = new TextEncoder();
+    const encoder = new TextEncoder();
 
-    const aBytes = aEncoder.encode(a);
-    const bBytes = bEncoder.encode(b);
+    const aBytes = encoder.encode(a);
+    const bBytes = encoder.encode(b);
 
     if (aBytes.length !== bBytes.length) {
         throw new Error("Strings must have the same length");
     }
 
     return Number(nativeString.symbols.rk_string_hamming(
-        ptr(aBytes),
+        ffiPtr(aBytes),
         aBytes.length,
-        ptr(bBytes),
+        ffiPtr(bBytes),
         bBytes.length
     ));
 }
@@ -46,9 +52,9 @@ export function fuzzyMatch(
     const out = new Uint32Array(1);
 
     const found = nativeString.symbols.rk_string_fuzzy_match(
-        ptr(patternBytes),
+        ffiPtr(patternBytes),
         patternBytes.length,
-        ptr(textBytes),
+        ffiPtr(textBytes),
         textBytes.length,
         ptr(out)
     );
@@ -63,9 +69,9 @@ export function longestCommonSubseq(a: string, b: string): number {
     const bBytes = encoder.encode(b);
 
     return Number(nativeString.symbols.rk_string_longest_common_subseq(
-        ptr(aBytes),
+        ffiPtr(aBytes),
         aBytes.length,
-        ptr(bBytes),
+        ffiPtr(bBytes),
         bBytes.length
     ));
 }
@@ -77,9 +83,9 @@ export function longestCommonSubstr(a: string, b: string): number {
     const bBytes = encoder.encode(b);
 
     return Number(nativeString.symbols.rk_string_longest_common_substr(
-        ptr(aBytes),
+        ffiPtr(aBytes),
         aBytes.length,
-        ptr(bBytes),
+        ffiPtr(bBytes),
         bBytes.length
     ));
 }
@@ -91,9 +97,9 @@ export function damerauLevenshtein(a: string, b: string): number {
     const bBytes = encoder.encode(b);
 
     return Number(nativeString.symbols.rk_string_damerau_levenshtein(
-        ptr(aBytes),
+        ffiPtr(aBytes),
         aBytes.length,
-        ptr(bBytes),
+        ffiPtr(bBytes),
         bBytes.length
     ));
 }
@@ -105,9 +111,9 @@ export function jaroWinkler(a: string, b: string): number {
     const bBytes = encoder.encode(b);
 
     return nativeString.symbols.rk_string_jaro_winkler(
-        ptr(aBytes),
+        ffiPtr(aBytes),
         aBytes.length,
-        ptr(bBytes),
+        ffiPtr(bBytes),
         bBytes.length
     );
 }
@@ -119,9 +125,9 @@ export function trigramSimilarity(a: string, b: string): number {
     const bBytes = encoder.encode(b);
 
     return nativeString.symbols.rk_string_trigram_similarity(
-        ptr(aBytes),
+        ffiPtr(aBytes),
         aBytes.length,
-        ptr(bBytes),
+        ffiPtr(bBytes),
         bBytes.length
     );
 }
@@ -134,7 +140,7 @@ export function soundex(input: string): string {
     const out = new Uint8Array(4);
 
     nativeString.symbols.rk_string_soundex(
-        ptr(inputBytes),
+        ffiPtr(inputBytes),
         inputBytes.length,
         ptr(out)
     );

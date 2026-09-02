@@ -10,3 +10,5 @@ pub mod distance;
 pub mod fft;
 pub mod entropy;
 pub mod quantize;
+
+mod simd;
