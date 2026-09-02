@@ -19,7 +19,7 @@ try {
 
     if (publish) {
         console.log("\n=== PUBLISH ===");
-        execSync("bunx npm publish --access public", { cwd: root, stdio: "inherit" });
+        execSync("bun publish --access public", { cwd: root, stdio: "inherit" });
         console.log("\nPUBLISHED");
     } else {
         console.log("\nDRY-RUN: no publish (pass --publish to ship)");
