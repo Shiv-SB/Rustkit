@@ -318,6 +318,10 @@ describe("stats.weightedMean", () => {
     test("should throw on empty arrays", () => {
         expect(() => stats.weightedMean(new Float32Array([]), new Float32Array([]))).toThrow("Arrays must not be empty");
     });
+
+    test("should throw on zero-sum weights", () => {
+        expect(() => stats.weightedMean(new Float32Array([1, 2]), new Float32Array([0, 0]))).toThrow("Weights must sum to a positive value");
+    });
 });
 
 describe("stats.iqr", () => {

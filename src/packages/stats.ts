@@ -143,6 +143,11 @@ export function weightedMean(a: Float32Array, weights: Float32Array): number {
         throw new Error("Arrays must not be empty");
     }
 
+    const totalWeight = weights.reduce((s, w) => s + w, 0);
+    if (totalWeight <= 0) {
+        throw new Error("Weights must sum to a positive value");
+    }
+
     return nativeStats.symbols.rk_stats_weighted_mean_f32(ptr(a), ptr(weights), a.length);
 }
 
