@@ -8,7 +8,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "compile:rs": "cargo build --release -p rustkit-ffi",
-    "bench": "bun benchmarks/benchmark"
+    "bench": "bun benchmarks/benchmark",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun && bunx tsc --ignoreConfig --declaration --emitDeclarationOnly --outDir dist --module preserve --moduleResolution bundler --allowImportingTsExtensions --skipLibCheck --types bun src/index.ts"
   },
   "license": "MIT",
   "keywords": [
