@@ -4,7 +4,15 @@ import { join } from "node:path";
 
 const root = join(import.meta.dir, "..");
 
-const TARGETS = {
+interface PlatformTarget {
+    ext: "dylib" | "so";
+    rustupTarget?: string;
+    zigbuild?: boolean;
+    build: string[];
+    artifact: string;
+}
+
+const TARGETS: Record<string, PlatformTarget> = {
     "darwin-arm64": {
         ext: "dylib",
         build: ["cargo", "build", "--release", "-p", "rustkit-ffi"],
@@ -43,13 +51,13 @@ const TARGETS = {
 };
 
 const onlyArg = process.argv.indexOf("--only");
-const only = onlyArg !== -1 ? process.argv[onlyArg + 1] : null;
+const only = onlyArg !== -1 ? process.argv[onlyArg + 1] : undefined;
 
 if (process.platform !== "darwin" || process.arch !== "arm64") {
     throw new Error("build-platforms assumes a darwin-arm64 host; run per-platform builds manually elsewhere");
 }
 
-function hasCommand(cmd) {
+function hasCommand(cmd: string): boolean {
     try {
         execSync(`command -v ${cmd}`, { stdio: "ignore" });
         return true;

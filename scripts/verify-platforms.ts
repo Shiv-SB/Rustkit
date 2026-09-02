@@ -4,7 +4,7 @@ import { join } from "node:path";
 const root = join(import.meta.dir, "..");
 const warnOnly = process.argv.includes("--warn");
 
-const PLATFORMS = [
+const PLATFORMS: Array<[string, string]> = [
     ["darwin-arm64", "dylib"],
     ["darwin-x64", "dylib"],
     ["linux-x64-gnu", "so"],

@@ -23,11 +23,11 @@
     "compile:rs": "cargo build --release -p rustkit-ffi",
     "bench": "bun benchmarks/benchmark",
     "build": "bun build ./src/index.ts --outdir ./dist --target bun && bunx tsc --ignoreConfig --declaration --emitDeclarationOnly --outDir dist --module preserve --moduleResolution bundler --allowImportingTsExtensions --skipLibCheck --types bun src/index.ts",
-    "build:platforms": "bun scripts/build-platforms.mjs",
-    "verify:platforms": "bun scripts/verify-platforms.mjs",
-    "smoke": "bun scripts/smoke-test.mjs",
-    "release": "bun scripts/release.mjs",
-    "sync:version": "bun scripts/sync-version.mjs"
+    "build:platforms": "bun scripts/build-platforms.ts",
+    "verify:platforms": "bun scripts/verify-platforms.ts",
+    "smoke": "bun scripts/smoke-test.ts",
+    "release": "bun scripts/release.ts",
+    "sync:version": "bun scripts/sync-version.ts"
   },
   "license": "MIT",
   "keywords": [

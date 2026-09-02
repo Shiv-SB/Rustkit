@@ -11,16 +11,16 @@ import {
     crypto, quantile, distance, fft, entropy, quantize,
 } from "rustkit";
 
-const checks = [];
+const checks: Array<[string, boolean]> = [];
 
-function check(name, fn) {
+function check(name: string, fn: () => boolean) {
     try {
         const ok = fn();
         checks.push([name, ok]);
         if (!ok) console.error("FAIL:", name);
     } catch (e) {
         checks.push([name, false]);
-        console.error("FAIL:", name, "-", e.message);
+        console.error("FAIL:", name, "-", (e as Error).message);
     }
 }
 
