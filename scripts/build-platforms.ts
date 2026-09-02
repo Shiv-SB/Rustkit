@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, copyFileSync } from "node:fs";
 import { join } from "node:path";
+import { Effect, FileSystem, Option, Result, Stream } from "effect"
 
 const root = join(import.meta.dir, "..");
 
@@ -53,24 +54,36 @@ const TARGETS: Record<string, PlatformTarget> = {
     },
 };
 
-const onlyArg = process.argv.indexOf("--only");
-const only = onlyArg !== -1 ? process.argv[onlyArg + 1] : undefined;
+const hasCommand = (cmd: string) => Effect.try(() => execSync(`command -v ${cmd}`, { stdio: "ignore" })).pipe(
+    Effect.result,
+    Effect.andThen((result) => Result.match(result, {
+        onSuccess: () => Effect.succeed(true),
+        onFailure: () => Effect.succeed(false),
+    }))
+);
 
-if (process.platform !== "darwin" || process.arch !== "arm64") {
-    throw new Error("build-platforms assumes a darwin-arm64 host; run per-platform builds manually elsewhere");
-}
+const Main = Effect.gen(function* () {
+    const onlyArg: number = process.argv.indexOf("--only");
+    const only: Option.Option<string> = onlyArg !== -1 
+        ? Option.some(process.argv[onlyArg + 1]!) 
+        : Option.none();
 
-function hasCommand(cmd: string): boolean {
-    try {
-        execSync(`command -v ${cmd}`, { stdio: "ignore" });
-        return true;
-    } catch {
-        return false;
+    if (process.platform !== "darwin" || process.arch !== "arm64") {
+        return yield* Effect.die(new Error("build-platforms assumes a darwin-arm64 host; run per-platform builds manually elsewhere"));
     }
-}
 
-const keys = only ? [only] : Object.keys(TARGETS);
-let failed = false;
+    const keys = Option.match(only, {
+        onSome: (str) => [str],
+        onNone: () => Object.keys(TARGETS)
+    });
+
+    let failed = false;
+    
+    yield* Effect.forEach(keys, Effect.fnUntraced(function* () {
+        
+    }));
+});
+
 
 for (const key of keys) {
     const target = TARGETS[key];

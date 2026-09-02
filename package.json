@@ -29,7 +29,8 @@
     "verify:platforms": "bun scripts/verify-platforms.ts",
     "smoke": "bun scripts/smoke-test.ts",
     "release": "bun scripts/release.ts",
-    "sync:version": "bun scripts/sync-version.ts"
+    "sync:version": "bun scripts/sync-version.ts",
+    "prepare": "effect-tsgo patch --typescript --no-oxlint"
   },
   "license": "MIT",
   "keywords": [
@@ -59,7 +60,7 @@
     "@types/bun": "1.4.0",
     "effect": "^4.0.0-rc.112",
     "mitata": "^1.0.34",
-    "typescript": "^7"
-  },
-  "sideEffects": false
+    "typescript": "^7",
+    "@effect/tsgo": "0.39.1"
+  }
 }
