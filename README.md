@@ -2,7 +2,7 @@
 
 A numeric library for [Bun](https://bun.com), implemented in Rust and exposed through `bun:ffi`. All numeric work happens in Rust — the TypeScript layer is a thin validated wrapper over the native binary.
 
-Hot kernels (dot products, reductions, element-wise ops) use explicit NEON SIMD on Apple Silicon.
+Hot kernels (dot products, reductions, element-wise ops) use explicit SIMD — NEON on AArch64 (Apple Silicon and Linux arm64) — with auto-vectorized scalar fallbacks on other targets.
 
 ## Install
 
