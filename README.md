@@ -291,17 +291,46 @@ tests/<module>.test.ts                     # 5. tests
 ### Commands
 
 ```bash
-bun compile:rs    # build the Rust cdylib (required before any test run)
+bun run compile:rs    # build the Rust cdylib (required before any test run)
 bun test              # TS test suite (coverage always on)
-bun typecheck     # tsc --noEmit
+bun run typecheck     # tsc --noEmit
 bun run build         # bundle dist/ (index.js + .d.ts)
-bun build:platforms   # build all 6 platform binaries into platforms/
-bun verify:platforms  # assert all 6 platform binaries exist
-bun smoke         # pack + install tarball in a temp project + exercise all modules
-bun release       # full release pipeline (dry-run; pass --publish to ship)
+bun run build:platforms   # build all 6 platform binaries into platforms/
+bun run verify:platforms  # assert all 6 platform binaries exist
+bun run smoke         # pack + install tarball in a temp project + exercise all modules
+bun run release       # full release pipeline (dry-run; pass --publish to ship)
 ```
 
 Rust unit tests run separately: `cargo test`.
+
+## Publishing
+
+The npm package is published from this repo with a single command. The version is sourced from `crates/rustkit-ffi/Cargo.toml` — bump it there, and `bun run release` syncs `package.json` automatically.
+
+### Prerequisites
+
+- npm auth: `npm login` (or a valid token in `~/.npmrc`). Verify with `npm whoami`.
+- `cargo-zigbuild` for the Linux targets: `brew install cargo-zigbuild` (or `cargo install cargo-zigbuild`). Without it, the 4 Linux binaries are skipped and `--publish` will fail the platform check.
+- The `rustkit` name is already reserved on npm (`0.0.0` placeholder) — publishing a real version publishes over it.
+
+### Release
+
+```bash
+bun run release              # dry-run: build, verify, test, pack, smoke — no publish
+bun run release --publish    # the same, then publish to npm
+```
+
+The pipeline runs, in order:
+
+1. `sync:version` — copy the Cargo.toml version into `package.json`
+2. `build:platforms` — build all 6 platform binaries into `platforms/`
+3. `verify:platforms` — hard-fail if any platform binary is missing (dry-run warns instead)
+4. `bun test` — full TS suite
+5. `build` — bundle `dist/`
+6. `smoke` — pack the tarball, install it in a temp Bun project, exercise all 12 modules
+7. `npm publish` — only with `--publish`
+
+Always run the dry-run first and inspect the output before shipping. The smoke step verifies the actual tarball, not the working tree.
 
 ## License
 
