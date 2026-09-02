@@ -57,6 +57,7 @@
   },
   "devDependencies": {
     "@types/bun": "1.4.0",
+    "effect": "^4.0.0-rc.112",
     "mitata": "^1.0.34",
     "typescript": "^7"
   },
