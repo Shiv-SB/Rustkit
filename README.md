@@ -237,8 +237,6 @@ Also: `dequantizeInt4`.
 | Linux x64 (musl) | `linux-x64-musl` |
 | Linux arm64 (musl) | `linux-arm64-musl` |
 
-Linux binaries are cross-compiled; verification on native hardware is planned.
-
 ## Versioning
 
 `0.x`: minor bumps may break the API. The API stabilizes toward `1.0.0`.
@@ -251,7 +249,59 @@ Linux binaries are cross-compiled; verification on native hardware is planned.
 
 ## Development
 
-Every `assert!`/`assert_eq!` in rustkit-core must have a corresponding input-validation throw in the TS wrapper (`src/packages/*.ts`) that fires first. Rust must never panic on user input through the published API.
+### Architecture
+
+The library is a five-layer pipeline. Every new function touches all five:
+
+```
+crates/rustkit-core/src/<module>/<op>.rs   # 1. pure Rust algorithm
+crates/rustkit-ffi/src/<module>.rs         # 2. extern "C" wrapper (rk_<module>_<op>_<type>)
+src/native.ts                              # 3. dlopen symbol table entry
+src/packages/<module>.ts                   # 4. validated TS wrapper
+tests/<module>.test.ts                     # 5. tests
+```
+
+### Adding a new function
+
+1. **Core** — implement the algorithm in `crates/rustkit-core/src/<module>/<op>.rs` and export it from the module's `mod.rs`. Keep it pure: no null checks, no FFI concerns.
+2. **FFI** — add an `extern "C"` wrapper in `crates/rustkit-ffi/src/<module>.rs` using `#[unsafe(no_mangle)]` (edition 2024 syntax). Null-check the pointers here — the core never does. Name it `rk_<module>_<op>_<type>`.
+3. **Symbol table** — register the symbol in `src/native.ts` with the correct arg/return types (`ptr`, `u64`, `float`, etc.).
+4. **TS wrapper** — add the validated wrapper in `src/packages/<module>.ts`. Validate every user-supplied input here (lengths, bounds, ranges) and re-export from `src/index.ts` if it's a new public entry point.
+5. **Tests** — add tests in `tests/<module>.test.ts` covering happy path, edge cases, and every validation throw.
+6. **Verify** — `bun run compile:rs && bun test && bun run typecheck`.
+
+### Adding a new module
+
+1. Create `crates/rustkit-core/src/<module>/` with a `mod.rs` exporting each operation.
+2. Register the module in `crates/rustkit-core/src/lib.rs`.
+3. Create `crates/rustkit-ffi/src/<module>.rs` and register it in `crates/rustkit-ffi/src/lib.rs`.
+4. Add a `native<Module>` dlopen block in `src/native.ts` and export it.
+5. Create `src/packages/<module>.ts` and re-export it from `src/index.ts`.
+6. Create `tests/<module>.test.ts`.
+7. Add the module to the README Modules section and the CHANGELOG.
+
+### Conventions
+
+- **Validation invariant** — every `assert!`/`assert_eq!` in rustkit-core must have a corresponding input-validation throw in the TS wrapper (`src/packages/*.ts`) that fires first. Rust must never panic on user input through the published API. A panic inside `extern "C"` aborts the process.
+- **All vector ops are `f32`** (`Float32Array`) — mismatched types silently corrupt memory.
+- **In-place FFI ops** (clamp, sort, zscore) mutate the Rust buffer directly; the TS wrapper copies first so the caller's array is never mutated.
+- **Null checks live in the FFI layer**, never in core.
+- **SIMD** — hot reductions (dot, sum, l1, squared-diff-sum, max-abs) live in `crates/rustkit-core/src/simd.rs`: explicit NEON on AArch64, scalar fallbacks elsewhere. Add new kernels there, not inline in algorithms.
+
+### Commands
+
+```bash
+bun run compile:rs    # build the Rust cdylib (required before any test run)
+bun test              # TS test suite (coverage always on)
+bun run typecheck     # tsc --noEmit
+bun run build         # bundle dist/ (index.js + .d.ts)
+bun run build:platforms   # build all 6 platform binaries into platforms/
+bun run verify:platforms  # assert all 6 platform binaries exist
+bun run smoke         # pack + install tarball in a temp project + exercise all modules
+bun run release       # full release pipeline (dry-run; pass --publish to ship)
+```
+
+Rust unit tests (if added) run separately: `cargo test -p rustkit-core`.
 
 ## License
 
