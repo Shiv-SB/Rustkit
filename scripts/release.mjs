@@ -12,7 +12,7 @@ function step(name, cmd) {
 try {
     step("sync version", "bun run sync:version");
     step("build platforms", "bun run build:platforms");
-    step("verify platforms", "bun run verify:platforms");
+    step("verify platforms", `bun scripts/verify-platforms.mjs ${publish ? "" : "--warn"}`);
     step("test suite", "bun test");
     step("build dist", "bun run build");
     step("smoke test", "bun run smoke");

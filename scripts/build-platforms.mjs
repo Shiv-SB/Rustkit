@@ -12,6 +12,7 @@ const TARGETS = {
     },
     "darwin-x64": {
         ext: "dylib",
+        rustupTarget: "x86_64-apple-darwin",
         build: ["cargo", "build", "--release", "-p", "rustkit-ffi", "--target", "x86_64-apple-darwin"],
         artifact: join("target", "x86_64-apple-darwin", "release", "librustkit_ffi.dylib"),
     },
@@ -71,6 +72,11 @@ for (const key of keys) {
     if (target.zigbuild && !hasCommand("cargo-zigbuild")) {
         console.warn(`SKIP ${key}: cargo-zigbuild not installed. Install with: brew install cargo-zigbuild (or cargo install cargo-zigbuild)`);
         continue;
+    }
+
+    if (target.rustupTarget) {
+        console.log(`RUSTUP target add ${target.rustupTarget} ...`);
+        execSync(`rustup target add ${target.rustupTarget}`, { cwd: root, stdio: "inherit" });
     }
 
     console.log(`BUILD ${key} ...`);

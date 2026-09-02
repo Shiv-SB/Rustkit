@@ -2,6 +2,7 @@ import { existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dir, "..");
+const warnOnly = process.argv.includes("--warn");
 
 const PLATFORMS = [
     ["darwin-arm64", "dylib"],
@@ -27,6 +28,10 @@ for (const [key, ext] of PLATFORMS) {
 }
 
 if (missing > 0) {
+    if (warnOnly) {
+        console.warn(`\n${missing} platform binary(ies) missing (dry-run: continuing; --publish will hard-fail). Run: bun run build:platforms`);
+        process.exit(0);
+    }
     console.error(`\n${missing} platform binary(ies) missing. Run: bun run build:platforms`);
     process.exit(1);
 }
