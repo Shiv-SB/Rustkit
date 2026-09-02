@@ -75,6 +75,24 @@ describe("quantile.CountMinSketch", () => {
         quantile.countMinSketchAdd(sketch, 3, 10, item);
         expect(sketch[0]).toBeGreaterThanOrEqual(count1);
     });
+
+    test("should throw on invalid depth in add", () => {
+        const sketch = quantile.createCountMinSketch(3, 10);
+        expect(() => quantile.countMinSketchAdd(sketch, 0, 10, new Uint8Array([1]))).toThrow("Depth must be greater than 0");
+    });
+
+    test("should throw on invalid width in add", () => {
+        const sketch = quantile.createCountMinSketch(3, 10);
+        expect(() => quantile.countMinSketchAdd(sketch, 3, 0, new Uint8Array([1]))).toThrow("Width must be greater than 0");
+    });
+
+    test("should throw on table length mismatch in add", () => {
+        expect(() => quantile.countMinSketchAdd(new Uint32Array(3), 3, 10, new Uint8Array([1]))).toThrow("table must have length depth * width");
+    });
+
+    test("should throw on table length mismatch in query", () => {
+        expect(() => quantile.countMinSketchQuery(new Uint32Array(3), 3, 10, new Uint8Array([1]))).toThrow("table must have length depth * width");
+    });
 });
 
 describe("quantile.BloomFilter", () => {
@@ -105,6 +123,22 @@ describe("quantile.BloomFilter", () => {
         quantile.bloomFilterInsert(filter, 256, item2, 3);
         const count = Array.from(filter).reduce((s, v) => s + Number(v).toString(2).split("1").length - 1, 0);
         expect(count).toBeGreaterThan(0);
+    });
+
+    test("should throw on invalid numBits in insert", () => {
+        expect(() => quantile.bloomFilterInsert(new BigUint64Array(1), 0, new Uint8Array([1]), 3)).toThrow("numBits must be greater than 0");
+    });
+
+    test("should throw on invalid numHashes in insert", () => {
+        expect(() => quantile.bloomFilterInsert(new BigUint64Array(1), 128, new Uint8Array([1]), 0)).toThrow("numHashes must be greater than 0");
+    });
+
+    test("should throw on bits length mismatch in insert", () => {
+        expect(() => quantile.bloomFilterInsert(new BigUint64Array(3), 200, new Uint8Array([1]), 3)).toThrow("bits must have length ceil(numBits / 64)");
+    });
+
+    test("should throw on bits length mismatch in contains", () => {
+        expect(() => quantile.bloomFilterContains(new BigUint64Array(3), 200, new Uint8Array([1]), 3)).toThrow("bits must have length ceil(numBits / 64)");
     });
 });
 
@@ -186,6 +220,10 @@ describe("quantile.HyperLogLog", () => {
     test("should throw on empty sketch", () => {
         expect(() => quantile.hyperloglogAdd(new Uint8Array([]), new Uint8Array([1]))).toThrow("Sketch must not be empty");
         expect(() => quantile.hyperloglogEstimate(new Uint8Array([]))).toThrow("Sketch must not be empty");
+    });
+
+    test("should throw on non-power-of-two sketch length", () => {
+        expect(() => quantile.hyperloglogAdd(new Uint8Array(3), new Uint8Array([1]))).toThrow("Sketch length must be a power of two");
     });
 });
 

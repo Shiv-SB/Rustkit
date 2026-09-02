@@ -50,6 +50,16 @@ export function countMinSketchAdd(
     width: number,
     item: Uint8Array
 ): void {
+    if (depth <= 0) {
+        throw new Error("Depth must be greater than 0");
+    }
+    if (width <= 0) {
+        throw new Error("Width must be greater than 0");
+    }
+    if (table.length !== depth * width) {
+        throw new Error("table must have length depth * width");
+    }
+
     nativeQuantile.symbols.rk_quantile_count_min_sketch_add(
         ptr(table),
         depth,
@@ -70,6 +80,16 @@ export function bloomFilterInsert(
     item: Uint8Array,
     numHashes: number
 ): void {
+    if (numBits <= 0) {
+        throw new Error("numBits must be greater than 0");
+    }
+    if (numHashes <= 0) {
+        throw new Error("numHashes must be greater than 0");
+    }
+    if (bits.length !== Math.ceil(numBits / 64)) {
+        throw new Error("bits must have length ceil(numBits / 64)");
+    }
+
     nativeQuantile.symbols.rk_quantile_bloom_filter_insert(
         ptr(bits),
         numBits,
@@ -90,6 +110,9 @@ export function countMinSketchQuery(
     }
     if (width <= 0) {
         throw new Error("Width must be greater than 0");
+    }
+    if (table.length !== depth * width) {
+        throw new Error("table must have length depth * width");
     }
 
     return nativeQuantile.symbols.rk_quantile_count_min_sketch_query(
@@ -112,6 +135,9 @@ export function bloomFilterContains(
     }
     if (numHashes <= 0) {
         throw new Error("numHashes must be greater than 0");
+    }
+    if (bits.length !== Math.ceil(numBits / 64)) {
+        throw new Error("bits must have length ceil(numBits / 64)");
     }
 
     return nativeQuantile.symbols.rk_quantile_bloom_filter_contains(
@@ -142,6 +168,9 @@ export function hyperloglogCreate(precision: number): Uint8Array {
 export function hyperloglogAdd(sketch: Uint8Array, item: Uint8Array): void {
     if (sketch.length === 0) {
         throw new Error("Sketch must not be empty");
+    }
+    if ((sketch.length & (sketch.length - 1)) !== 0) {
+        throw new Error("Sketch length must be a power of two");
     }
 
     nativeQuantile.symbols.rk_quantile_hyperloglog_add(
