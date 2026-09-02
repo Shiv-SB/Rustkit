@@ -1,15 +1,33 @@
 {
   "name": "rustkit",
-  "module": "index.ts",
   "version": "0.1.0",
   "description": "High performance primitives for Bun, powered by Rust",
   "type": "module",
-
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "platforms",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "typecheck": "tsc --noEmit",
     "compile:rs": "cargo build --release -p rustkit-ffi",
     "bench": "bun benchmarks/benchmark",
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun && bunx tsc --ignoreConfig --declaration --emitDeclarationOnly --outDir dist --module preserve --moduleResolution bundler --allowImportingTsExtensions --skipLibCheck --types bun src/index.ts"
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun && bunx tsc --ignoreConfig --declaration --emitDeclarationOnly --outDir dist --module preserve --moduleResolution bundler --allowImportingTsExtensions --skipLibCheck --types bun src/index.ts",
+    "build:platforms": "bun scripts/build-platforms.mjs",
+    "verify:platforms": "bun scripts/verify-platforms.mjs",
+    "smoke": "bun scripts/smoke-test.mjs",
+    "release": "bun scripts/release.mjs",
+    "sync:version": "bun scripts/sync-version.mjs"
   },
   "license": "MIT",
   "keywords": [
@@ -31,11 +49,13 @@
   "engines": {
     "bun": ">=1.4.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Shiv-SB/Rustkit.git"
+  },
   "devDependencies": {
     "@types/bun": "1.4.0",
-    "mitata": "^1.0.34"
-  },
-  "peerDependencies": {
+    "mitata": "^1.0.34",
     "typescript": "^7"
   }
 }
