@@ -1,6 +1,37 @@
-import { dlopen, ptr, suffix } from "bun:ffi";
+import { dlopen, ptr } from "bun:ffi";
+import { join } from "node:path";
+import { existsSync } from "node:fs";
 
-const LIB = `./target/release/librustkit_ffi.${suffix}`;
+function resolveLibraryPath(): string {
+    const platform = process.platform;
+    const arch = process.arch;
+    const ext = platform === "darwin" ? "dylib" : "so";
+
+    const candidates: string[] = [];
+    if (platform === "linux") {
+        candidates.push(`linux-${arch}-gnu`, `linux-${arch}-musl`);
+    } else {
+        candidates.push(`${platform}-${arch}`);
+    }
+
+    for (const key of candidates) {
+        const bundled = join(import.meta.dir, "..", "platforms", key, `librustkit_ffi.${ext}`);
+        if (existsSync(bundled)) {
+            return bundled;
+        }
+    }
+
+    const dev = join(import.meta.dir, "..", "target", "release", `librustkit_ffi.${ext}`);
+    if (existsSync(dev)) {
+        return dev;
+    }
+
+    throw new Error(
+        `rustkit: no binary for ${platform}-${arch}. Supported: darwin-arm64, darwin-x64, linux-x64-gnu, linux-arm64-gnu, linux-x64-musl, linux-arm64-musl`
+    );
+}
+
+const LIB = resolveLibraryPath();
 
 const nativeVector = dlopen(LIB, {
     rk_vector_add_f32: {
