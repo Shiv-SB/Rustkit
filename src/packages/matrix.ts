@@ -1,4 +1,4 @@
-import { native, ptr } from "../native";
+import { nativeMatrix, ptr } from "../native";
 
 export function mul(
     a: Float32Array,
@@ -16,7 +16,7 @@ export function mul(
 
     const out = new Float32Array(rowsA * colsB);
 
-    native.symbols.rk_matrix_mul_f32(
+    nativeMatrix.symbols.rk_matrix_mul_f32(
         ptr(a),
         ptr(b),
         ptr(out),
@@ -39,7 +39,7 @@ export function transpose(
 
     const out = new Float32Array(rows * cols);
 
-    native.symbols.rk_matrix_transpose_f32(
+    nativeMatrix.symbols.rk_matrix_transpose_f32(
         ptr(a),
         ptr(out),
         rows,
@@ -57,7 +57,7 @@ export function determinant(
         throw new Error("Matrix must be square");
     }
 
-    return native.symbols.rk_matrix_determinant_f32(
+    return nativeMatrix.symbols.rk_matrix_determinant_f32(
         ptr(a),
         n
     );
@@ -73,7 +73,7 @@ export function inverse(
 
     const out = new Float32Array(n * n);
 
-    const success = native.symbols.rk_matrix_inverse_f32(
+    const success = nativeMatrix.symbols.rk_matrix_inverse_f32(
         ptr(a),
         ptr(out),
         n
@@ -98,7 +98,7 @@ export function add(
 
     const out = new Float32Array(rows * cols);
 
-    native.symbols.rk_matrix_add_f32(
+    nativeMatrix.symbols.rk_matrix_add_f32(
         ptr(a),
         ptr(b),
         ptr(out),
@@ -121,7 +121,7 @@ export function sub(
 
     const out = new Float32Array(rows * cols);
 
-    native.symbols.rk_matrix_sub_f32(
+    nativeMatrix.symbols.rk_matrix_sub_f32(
         ptr(a),
         ptr(b),
         ptr(out),
@@ -140,7 +140,7 @@ export function trace(
         throw new Error("Matrix must be square");
     }
 
-    return native.symbols.rk_matrix_trace_f32(
+    return nativeMatrix.symbols.rk_matrix_trace_f32(
         ptr(a),
         n
     );
@@ -151,7 +151,7 @@ export function eye(
 ): Float32Array {
     const out = new Float32Array(n * n);
 
-    native.symbols.rk_matrix_eye_f32(
+    nativeMatrix.symbols.rk_matrix_eye_f32(
         ptr(out),
         n
     );
@@ -170,7 +170,7 @@ export function reshape(
 
     const out = new Float32Array(rows * cols);
 
-    native.symbols.rk_matrix_reshape(
+    nativeMatrix.symbols.rk_matrix_reshape(
         ptr(a),
         ptr(out),
         rows,

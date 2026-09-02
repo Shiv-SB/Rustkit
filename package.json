@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "compile:rs": "cargo build --release -p rustkit-ffi",
     "bench": "benchmarks/benchmark"
   },

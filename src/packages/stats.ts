@@ -1,11 +1,11 @@
-import { native, ptr } from "../native";
+import { nativeStats, ptr } from "../native";
 
 export function mean(a: Float32Array): number {
     if (a.length === 0) {
         throw new Error("Array must not be empty");
     }
 
-    return native.symbols.rk_stats_mean_f32(ptr(a), a.length);
+    return nativeStats.symbols.rk_stats_mean_f32(ptr(a), a.length);
 }
 
 export function median(a: Float32Array): number {
@@ -13,7 +13,7 @@ export function median(a: Float32Array): number {
         throw new Error("Array must not be empty");
     }
 
-    return native.symbols.rk_stats_median_f32(ptr(a), a.length);
+    return nativeStats.symbols.rk_stats_median_f32(ptr(a), a.length);
 }
 
 export function variance(a: Float32Array): number {
@@ -21,7 +21,7 @@ export function variance(a: Float32Array): number {
         throw new Error("Array must not be empty");
     }
 
-    return native.symbols.rk_stats_variance_f32(ptr(a), a.length);
+    return nativeStats.symbols.rk_stats_variance_f32(ptr(a), a.length);
 }
 
 export function stddev(a: Float32Array): number {
@@ -29,7 +29,7 @@ export function stddev(a: Float32Array): number {
         throw new Error("Array must not be empty");
     }
 
-    return native.symbols.rk_stats_stddev_f32(ptr(a), a.length);
+    return nativeStats.symbols.rk_stats_stddev_f32(ptr(a), a.length);
 }
 
 export function percentile(a: Float32Array, p: number): number {
@@ -40,7 +40,7 @@ export function percentile(a: Float32Array, p: number): number {
         throw new Error("Percentile must be between 0 and 100");
     }
 
-    return native.symbols.rk_stats_percentile_f32(ptr(a), a.length, p);
+    return nativeStats.symbols.rk_stats_percentile_f32(ptr(a), a.length, p);
 }
 
 export function covariance(a: Float32Array, b: Float32Array): number {
@@ -51,7 +51,7 @@ export function covariance(a: Float32Array, b: Float32Array): number {
         throw new Error("Arrays must not be empty");
     }
 
-    return native.symbols.rk_stats_covariance_f32(ptr(a), ptr(b), a.length);
+    return nativeStats.symbols.rk_stats_covariance_f32(ptr(a), ptr(b), a.length);
 }
 
 export function correlation(a: Float32Array, b: Float32Array): number {
@@ -62,7 +62,7 @@ export function correlation(a: Float32Array, b: Float32Array): number {
         throw new Error("Arrays must not be empty");
     }
 
-    return native.symbols.rk_stats_correlation_f32(ptr(a), ptr(b), a.length);
+    return nativeStats.symbols.rk_stats_correlation_f32(ptr(a), ptr(b), a.length);
 }
 
 export function zscore(a: Float32Array): Float32Array {
@@ -72,7 +72,7 @@ export function zscore(a: Float32Array): Float32Array {
 
     const out = new Float32Array(a);
 
-    native.symbols.rk_stats_zscore_f32(ptr(out), a.length);
+    nativeStats.symbols.rk_stats_zscore_f32(ptr(out), a.length);
 
     return out;
 }
@@ -87,7 +87,7 @@ export function histogram(a: Float32Array, bins: number): Uint32Array {
 
     const out = new Uint32Array(bins);
 
-    native.symbols.rk_stats_histogram_f32(ptr(a), a.length, bins, ptr(out));
+    nativeStats.symbols.rk_stats_histogram_f32(ptr(a), a.length, bins, ptr(out));
 
     return out;
 }
@@ -100,5 +100,5 @@ export function quantile(a: Float32Array, q: number): number {
         throw new Error("Quantile must be between 0 and 1");
     }
 
-    return native.symbols.rk_stats_quantile_f32(ptr(a), a.length, q);
+    return nativeStats.symbols.rk_stats_quantile_f32(ptr(a), a.length, q);
 }

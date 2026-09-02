@@ -1,4 +1,4 @@
-import { native, ptr } from "../native";
+import { nativeVector, ptr } from "../native";
 
 /**
  * Adds two vectors element-wise.
@@ -18,7 +18,7 @@ export function add(
 
     const out = new Float32Array(a.length);
 
-    native.symbols.rk_vector_add_f32(
+    nativeVector.symbols.rk_vector_add_f32(
         ptr(a),
         ptr(b),
         ptr(out),
@@ -46,7 +46,7 @@ export function sub(
 
     const out = new Float32Array(a.length);
 
-    native.symbols.rk_vector_sub_f32(
+    nativeVector.symbols.rk_vector_sub_f32(
         ptr(a),
         ptr(b),
         ptr(out),
@@ -74,7 +74,7 @@ export function mul(
 
     const out = new Float32Array(a.length);
 
-    native.symbols.rk_vector_mul_f32(
+    nativeVector.symbols.rk_vector_mul_f32(
         ptr(a),
         ptr(b),
         ptr(out),
@@ -102,7 +102,7 @@ export function div(
 
     const out = new Float32Array(a.length);
 
-    native.symbols.rk_vector_div_f32(
+    nativeVector.symbols.rk_vector_div_f32(
         ptr(a),
         ptr(b),
         ptr(out),
@@ -128,7 +128,7 @@ export function dot(
         throw new Error("Vectors must have the same length");
     }
 
-    return native.symbols.rk_vector_dot_f32(
+    return nativeVector.symbols.rk_vector_dot_f32(
         ptr(a),
         ptr(b),
         a.length
@@ -153,7 +153,7 @@ export function cross(
 
     const out = new Float32Array(3);
 
-    native.symbols.rk_vector_cross_f32(
+    nativeVector.symbols.rk_vector_cross_f32(
         ptr(a),
         ptr(b),
         ptr(out),
@@ -172,7 +172,7 @@ export function cross(
 export function norm(
     a: Float32Array
 ): number {
-    return native.symbols.rk_vector_norm_f32(
+    return nativeVector.symbols.rk_vector_norm_f32(
         ptr(a),
         a.length
     );
@@ -189,7 +189,7 @@ export function normalize(
 ): Float32Array {
     const out = new Float32Array(a.length);
 
-    native.symbols.rk_vector_normalize_f32(
+    nativeVector.symbols.rk_vector_normalize_f32(
         ptr(a),
         ptr(out),
         a.length
@@ -211,7 +211,7 @@ export function scale(
 ): Float32Array {
     const out = new Float32Array(a.length);
 
-    native.symbols.rk_vector_scale_f32(
+    nativeVector.symbols.rk_vector_scale_f32(
         ptr(a),
         scalar,
         ptr(out),
@@ -235,7 +235,7 @@ export function argmin(
         throw new Error("Vector must not be empty");
     }
 
-    return Number(native.symbols.rk_vector_argmin_f32(
+    return Number(nativeVector.symbols.rk_vector_argmin_f32(
         ptr(a),
         a.length
     ));
@@ -255,7 +255,7 @@ export function argmax(
         throw new Error("Vector must not be empty");
     }
 
-    return Number(native.symbols.rk_vector_argmax_f32(
+    return Number(nativeVector.symbols.rk_vector_argmax_f32(
         ptr(a),
         a.length
     ));
@@ -278,7 +278,7 @@ export function fill(
 
     const out = new Float32Array(len);
 
-    native.symbols.rk_vector_fill_f32(
+    nativeVector.symbols.rk_vector_fill_f32(
         ptr(out),
         val,
         len
@@ -302,7 +302,7 @@ export function zero(
 
     const out = new Float32Array(len);
 
-    native.symbols.rk_vector_zero_f32(
+    nativeVector.symbols.rk_vector_zero_f32(
         ptr(out),
         len
     );
@@ -323,7 +323,7 @@ export function sum(
         return 0;
     }
 
-    return native.symbols.rk_vector_sum_f32(
+    return nativeVector.symbols.rk_vector_sum_f32(
         ptr(a),
         a.length
     );
@@ -343,7 +343,7 @@ export function mean(
         throw new Error("Vector must not be empty");
     }
 
-    return native.symbols.rk_vector_mean_f32(
+    return nativeVector.symbols.rk_vector_mean_f32(
         ptr(a),
         a.length
     );
@@ -369,7 +369,7 @@ export function lerp(
 
     const out = new Float32Array(a.length);
 
-    native.symbols.rk_vector_lerp_f32(
+    nativeVector.symbols.rk_vector_lerp_f32(
         ptr(a),
         ptr(b),
         t,
@@ -395,7 +395,7 @@ export function clamp(
 ): Float32Array {
     const out = new Float32Array(a);
 
-    native.symbols.rk_vector_clamp_f32(
+    nativeVector.symbols.rk_vector_clamp_f32(
         ptr(out),
         min,
         max,
@@ -416,7 +416,7 @@ export function sort(
 ): Float32Array {
     const out = new Float32Array(a);
 
-    native.symbols.rk_vector_sort_f32(
+    nativeVector.symbols.rk_vector_sort_f32(
         ptr(out),
         out.length
     );

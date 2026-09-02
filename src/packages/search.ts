@@ -1,4 +1,4 @@
-import { native, ptr } from "../native";
+import { nativeSearch, ptr } from "../native";
 
 export function binarySearch(
     a: Int32Array,
@@ -6,7 +6,7 @@ export function binarySearch(
 ): number | null {
     const out = new Uint32Array(1);
 
-    const found = native.symbols.rk_search_binary_search_i32(
+    const found = nativeSearch.symbols.rk_search_binary_search_i32(
         ptr(a),
         a.length,
         target,
@@ -20,7 +20,7 @@ export function lowerBound(
     a: Int32Array,
     target: number
 ): number {
-    return native.symbols.rk_search_lower_bound_i32(
+    return nativeSearch.symbols.rk_search_lower_bound_i32(
         ptr(a),
         a.length,
         target
@@ -31,7 +31,7 @@ export function upperBound(
     a: Int32Array,
     target: number
 ): number {
-    return native.symbols.rk_search_upper_bound_i32(
+    return nativeSearch.symbols.rk_search_upper_bound_i32(
         ptr(a),
         a.length,
         target
@@ -44,7 +44,7 @@ export function linearSearch(
 ): number | null {
     const out = new Uint32Array(1);
 
-    const found = native.symbols.rk_search_linear_search_i32(
+    const found = nativeSearch.symbols.rk_search_linear_search_i32(
         ptr(a),
         a.length,
         target,

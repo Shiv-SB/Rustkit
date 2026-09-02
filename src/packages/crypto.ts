@@ -1,11 +1,11 @@
-import { native, ptr } from "../native";
+import { nativeCrypto, ptr } from "../native";
 
 export function crc32(data: Uint8Array): number {
-    return native.symbols.rk_crypto_crc32(ptr(data), data.length);
+    return nativeCrypto.symbols.rk_crypto_crc32(ptr(data), data.length);
 }
 
 export function xxhash64(data: Uint8Array, seed: number = 0): bigint {
-    return native.symbols.rk_crypto_xxhash64(ptr(data), data.length, seed);
+    return nativeCrypto.symbols.rk_crypto_xxhash64(ptr(data), data.length, seed);
 }
 
 export function aeadEncrypt(
@@ -23,7 +23,7 @@ export function aeadEncrypt(
 
     const out = new Uint8Array(plaintext.length + 16);
 
-    native.symbols.rk_crypto_aead_encrypt(
+    nativeCrypto.symbols.rk_crypto_aead_encrypt(
         ptr(key),
         ptr(nonce),
         aad ? ptr(aad) : null,
@@ -54,7 +54,7 @@ export function aeadDecrypt(
 
     const out = new Uint8Array(ciphertext.length - 16);
 
-    const success = native.symbols.rk_crypto_aead_decrypt(
+    const success = nativeCrypto.symbols.rk_crypto_aead_decrypt(
         ptr(key),
         ptr(nonce),
         aad ? ptr(aad) : null,
@@ -86,7 +86,7 @@ export function chacha20(
 
     const out = new Uint8Array(input.length);
 
-    native.symbols.rk_crypto_chacha20(
+    nativeCrypto.symbols.rk_crypto_chacha20(
         ptr(key),
         ptr(nonce),
         counter,

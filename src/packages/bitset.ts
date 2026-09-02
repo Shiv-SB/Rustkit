@@ -1,10 +1,10 @@
-import { native, ptr } from "../native";
+import { nativeBitset, ptr } from "../native";
 
 export function create(numBits: number): BigUint64Array {
     const numWords = Math.ceil(numBits / 64);
     const bits = new BigUint64Array(numWords);
 
-    native.symbols.rk_bitset_new(ptr(bits), numWords);
+    nativeBitset.symbols.rk_bitset_new(ptr(bits), numWords);
 
     return bits;
 }
@@ -14,7 +14,7 @@ export function set(bits: BigUint64Array, index: number): void {
         throw new Error("Index out of bounds");
     }
 
-    native.symbols.rk_bitset_set(ptr(bits), bits.length, index);
+    nativeBitset.symbols.rk_bitset_set(ptr(bits), bits.length, index);
 }
 
 export function clear(bits: BigUint64Array, index: number): void {
@@ -22,7 +22,7 @@ export function clear(bits: BigUint64Array, index: number): void {
         throw new Error("Index out of bounds");
     }
 
-    native.symbols.rk_bitset_clear(ptr(bits), bits.length, index);
+    nativeBitset.symbols.rk_bitset_clear(ptr(bits), bits.length, index);
 }
 
 export function toggle(bits: BigUint64Array, index: number): void {
@@ -30,11 +30,11 @@ export function toggle(bits: BigUint64Array, index: number): void {
         throw new Error("Index out of bounds");
     }
 
-    native.symbols.rk_bitset_toggle(ptr(bits), bits.length, index);
+    nativeBitset.symbols.rk_bitset_toggle(ptr(bits), bits.length, index);
 }
 
 export function popcount(bits: BigUint64Array): number {
-    return native.symbols.rk_bitset_popcount(ptr(bits), bits.length);
+    return nativeBitset.symbols.rk_bitset_popcount(ptr(bits), bits.length);
 }
 
 export function and(
@@ -47,7 +47,7 @@ export function and(
 
     const out = new BigUint64Array(a.length);
 
-    native.symbols.rk_bitset_and(ptr(a), ptr(b), ptr(out), a.length);
+    nativeBitset.symbols.rk_bitset_and(ptr(a), ptr(b), ptr(out), a.length);
 
     return out;
 }
@@ -62,7 +62,7 @@ export function or(
 
     const out = new BigUint64Array(a.length);
 
-    native.symbols.rk_bitset_or(ptr(a), ptr(b), ptr(out), a.length);
+    nativeBitset.symbols.rk_bitset_or(ptr(a), ptr(b), ptr(out), a.length);
 
     return out;
 }
@@ -77,7 +77,7 @@ export function xor(
 
     const out = new BigUint64Array(a.length);
 
-    native.symbols.rk_bitset_xor(ptr(a), ptr(b), ptr(out), a.length);
+    nativeBitset.symbols.rk_bitset_xor(ptr(a), ptr(b), ptr(out), a.length);
 
     return out;
 }
@@ -88,7 +88,7 @@ export function nextSetBit(
 ): number | null {
     const out = new Uint32Array(1);
 
-    const found = native.symbols.rk_bitset_next_set_bit(
+    const found = nativeBitset.symbols.rk_bitset_next_set_bit(
         ptr(bits),
         bits.length,
         from,
@@ -99,5 +99,5 @@ export function nextSetBit(
 }
 
 export function cardinality(bits: BigUint64Array): number {
-    return native.symbols.rk_bitset_cardinality(ptr(bits), bits.length);
+    return nativeBitset.symbols.rk_bitset_cardinality(ptr(bits), bits.length);
 }

@@ -1,4 +1,4 @@
-import { native, ptr } from "../native";
+import { nativeGeohash, ptr } from "../native";
 
 export function encode(
     lat: number,
@@ -7,7 +7,7 @@ export function encode(
 ): string {
     const out = new Uint8Array(precision);
 
-    native.symbols.rk_geohash_encode(lat, lng, precision, ptr(out));
+    nativeGeohash.symbols.rk_geohash_encode(lat, lng, precision, ptr(out));
 
     return new TextDecoder().decode(out);
 }
@@ -19,7 +19,7 @@ export function decode(hash: string): { lat: number; lng: number } {
     const lat = new Float64Array(1);
     const lng = new Float64Array(1);
 
-    native.symbols.rk_geohash_decode(
+    nativeGeohash.symbols.rk_geohash_decode(
         ptr(hashBytes),
         hashBytes.length,
         ptr(lat),
@@ -38,7 +38,7 @@ export function neighbor(
 
     const out = new Uint8Array(hashBytes.length);
 
-    native.symbols.rk_geohash_neighbor(
+    nativeGeohash.symbols.rk_geohash_neighbor(
         ptr(hashBytes),
         hashBytes.length,
         direction,
@@ -54,5 +54,5 @@ export function distance(
     bLat: number,
     bLng: number
 ): number {
-    return native.symbols.rk_geohash_distance(aLat, aLng, bLat, bLng);
+    return nativeGeohash.symbols.rk_geohash_distance(aLat, aLng, bLat, bLng);
 }

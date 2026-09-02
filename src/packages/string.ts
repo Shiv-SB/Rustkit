@@ -1,4 +1,4 @@
-import { native, ptr } from "../native";
+import { nativeString, ptr } from "../native";
 
 export function levenshtein(a: string, b: string): number {
     const aEncoder = new TextEncoder();
@@ -7,7 +7,7 @@ export function levenshtein(a: string, b: string): number {
     const aBytes = aEncoder.encode(a);
     const bBytes = bEncoder.encode(b);
 
-    return native.symbols.rk_string_levenshtein(
+    return nativeString.symbols.rk_string_levenshtein(
         ptr(aBytes),
         aBytes.length,
         ptr(bBytes),
@@ -26,7 +26,7 @@ export function hamming(a: string, b: string): number {
         throw new Error("Strings must have the same length");
     }
 
-    return native.symbols.rk_string_hamming(
+    return nativeString.symbols.rk_string_hamming(
         ptr(aBytes),
         aBytes.length,
         ptr(bBytes),
@@ -45,7 +45,7 @@ export function fuzzyMatch(
 
     const out = new Uint32Array(1);
 
-    const found = native.symbols.rk_string_fuzzy_match(
+    const found = nativeString.symbols.rk_string_fuzzy_match(
         ptr(patternBytes),
         patternBytes.length,
         ptr(textBytes),
@@ -62,7 +62,7 @@ export function longestCommonSubseq(a: string, b: string): number {
     const aBytes = encoder.encode(a);
     const bBytes = encoder.encode(b);
 
-    return native.symbols.rk_string_longest_common_subseq(
+    return nativeString.symbols.rk_string_longest_common_subseq(
         ptr(aBytes),
         aBytes.length,
         ptr(bBytes),
@@ -76,7 +76,7 @@ export function longestCommonSubstr(a: string, b: string): number {
     const aBytes = encoder.encode(a);
     const bBytes = encoder.encode(b);
 
-    return native.symbols.rk_string_longest_common_substr(
+    return nativeString.symbols.rk_string_longest_common_substr(
         ptr(aBytes),
         aBytes.length,
         ptr(bBytes),

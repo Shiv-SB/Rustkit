@@ -1,4 +1,4 @@
-import { native, ptr } from "../native";
+import { nativeQuantile, ptr } from "../native";
 
 export interface TDigest {
     means: Float32Array;
@@ -17,7 +17,7 @@ export function createTDigest(maxCentroids: number = 100): TDigest {
 }
 
 export function tDigestAdd(digest: TDigest, value: number): void {
-    native.symbols.rk_quantile_t_digest_add(
+    nativeQuantile.symbols.rk_quantile_t_digest_add(
         ptr(digest.means),
         ptr(digest.counts),
         ptr(new Uint32Array([digest.numCentroids])),
@@ -29,7 +29,7 @@ export function tDigestAdd(digest: TDigest, value: number): void {
 }
 
 export function tDigestQuantile(digest: TDigest, q: number): number {
-    return native.symbols.rk_quantile_t_digest_quantile(
+    return nativeQuantile.symbols.rk_quantile_t_digest_quantile(
         ptr(digest.means),
         ptr(digest.counts),
         digest.numCentroids,
@@ -50,7 +50,7 @@ export function countMinSketchAdd(
     width: number,
     item: Uint8Array
 ): void {
-    native.symbols.rk_quantile_count_min_sketch_add(
+    nativeQuantile.symbols.rk_quantile_count_min_sketch_add(
         ptr(table),
         depth,
         width,
@@ -70,7 +70,7 @@ export function bloomFilterInsert(
     item: Uint8Array,
     numHashes: number
 ): void {
-    native.symbols.rk_quantile_bloom_filter_insert(
+    nativeQuantile.symbols.rk_quantile_bloom_filter_insert(
         ptr(bits),
         numBits,
         ptr(item),
