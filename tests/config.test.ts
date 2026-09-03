@@ -8,22 +8,23 @@ import rustFfiToml from "../crates/rustkit-ffi/Cargo.toml";
 
 describe("config", () => {
     test("should expose a semver version", () => {
-        expect(typeof config.version).toBe("string");
+        expect(config.version).toBeString();
         expect(config.version).toMatch(/^\d+\.\d+\.\d+/);
     });
 
     test("should expose the resolved platform", () => {
-        expect(typeof config.platform).toBe("string");
-        expect(config.platform.length).toBeGreaterThan(0);
+        expect(config.platform).toBeString();
+        expect(config.platform).not.toBeEmpty();
     });
 
     test("should expose the resolved binary path", () => {
-        expect(typeof config.binaryPath).toBe("string");
-        expect(config.binaryPath.length).toBeGreaterThan(0);
+        expect(config.binaryPath).toBeString();
+        expect(config.binaryPath).not.toBeEmpty();
     });
 
     test("should expose a known SIMD backend", () => {
-        expect(["scalar", "neon", "avx2", "sse2"]).toContain(config.simd);
+        expect(config.simd).toBeString();
+        expect(SIMD_NAMES).toContain(config.simd);
     });
 });
 
@@ -38,7 +39,7 @@ describe("SIMD backend index contract", () => {
         expect(SIMD_NAMES[1]).toBe("neon");
         expect(SIMD_NAMES[2]).toBe("avx2");
         expect(SIMD_NAMES[3]).toBe("sse2");
-        expect([...SIMD_NAMES]).toEqual(["scalar", "neon", "avx2", "sse2"]);
+        expect(SIMD_NAMES).toEqual(["scalar", "neon", "avx2", "sse2"]);
     });
 
     test("rk_config_simd mapping in the Rust source matches SIMD_NAMES", async () => {

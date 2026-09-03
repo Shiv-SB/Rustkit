@@ -13,6 +13,13 @@ describe("bitset.create", () => {
         expect(bits.length).toBe(2);
     });
 
+    test("should create bitset requiring random amount of words", () => {
+        const randLen = Math.ceil(Math.random() * 1000);
+        const bits = bitset.create(randLen);
+        const expectedLen = Math.ceil(randLen / 64);
+        expect(bits).toHaveLength(expectedLen);
+    }, { repeats: 1_000 });
+
     test("should create empty bitset", () => {
         const bits = bitset.create(0);
         expect(bits.length).toBe(0);
@@ -48,12 +55,12 @@ describe("bitset.set", () => {
 
     test("should throw on out of bounds", () => {
         const bits = bitset.create(64);
-        expect(() => bitset.set(bits, 64)).toThrow("Index out of bounds");
+        expect(() => bitset.set(bits, 64)).toThrowError("Index out of bounds");
     });
 
     test("should throw on negative index", () => {
         const bits = bitset.create(64);
-        expect(() => bitset.set(bits, -1)).toThrow("Index out of bounds");
+        expect(() => bitset.set(bits, -1)).toThrowError("Index out of bounds");
     });
 });
 
@@ -74,7 +81,7 @@ describe("bitset.clear", () => {
 
     test("should throw on out of bounds", () => {
         const bits = bitset.create(64);
-        expect(() => bitset.clear(bits, 64)).toThrow("Index out of bounds");
+        expect(() => bitset.clear(bits, 64)).toThrowError("Index out of bounds");
     });
 });
 
@@ -101,7 +108,7 @@ describe("bitset.toggle", () => {
 
     test("should throw on out of bounds", () => {
         const bits = bitset.create(64);
-        expect(() => bitset.toggle(bits, 64)).toThrow("Index out of bounds");
+        expect(() => bitset.toggle(bits, 64)).toThrowError("Index out of bounds");
     });
 });
 
@@ -163,7 +170,7 @@ describe("bitset.and", () => {
     test("should throw on mismatched lengths", () => {
         const a = bitset.create(64);
         const b = bitset.create(128);
-        expect(() => bitset.and(a, b)).toThrow("Bitsets must have the same length");
+        expect(() => bitset.and(a, b)).toThrowError("Bitsets must have the same length");
     });
 });
 
@@ -191,7 +198,7 @@ describe("bitset.or", () => {
     test("should throw on mismatched lengths", () => {
         const a = bitset.create(64);
         const b = bitset.create(128);
-        expect(() => bitset.or(a, b)).toThrow("Bitsets must have the same length");
+        expect(() => bitset.or(a, b)).toThrowError("Bitsets must have the same length");
     });
 });
 
@@ -218,7 +225,7 @@ describe("bitset.xor", () => {
     test("should throw on mismatched lengths", () => {
         const a = bitset.create(64);
         const b = bitset.create(128);
-        expect(() => bitset.xor(a, b)).toThrow("Bitsets must have the same length");
+        expect(() => bitset.xor(a, b)).toThrowError("Bitsets must have the same length");
     });
 });
 

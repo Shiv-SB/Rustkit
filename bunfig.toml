@@ -2,3 +2,6 @@
 # Always enable coverage
 coverage = true
 timeout = 5000
+coveragePathIgnorePatterns = [
+    "tests/utils.ts",
+]
