@@ -83,6 +83,59 @@ check("quantize.quantizeInt8", () => {
     return r.quantized.length === 2 && r.scale > 0;
 });
 
+// SIMD kernels process 8 f32 per iteration, so these use 64-element arrays
+// to actually enter the vectorized loop (not just the scalar tail).
+const ones64 = () => new Float32Array(64).fill(1);
+const zeros64 = () => new Float32Array(64);
+const ramp64 = () => Float32Array.from({ length: 64 }, (_, i) => i + 1);
+
+check("simd.vector.dot", () => {
+    return vector.dot(ones64(), ones64()) === 64;
+});
+
+check("simd.vector.sum", () => {
+    return vector.sum(ones64()) === 64;
+});
+
+check("simd.vector.l1Norm", () => {
+    const a = ones64();
+    for (let i = 1; i < a.length; i += 2) a[i] = -1;
+    return vector.l1Norm(a) === 64;
+});
+
+check("simd.vector.norm", () => {
+    const a = zeros64();
+    a[0] = 3;
+    a[1] = 4;
+    return Math.abs(vector.norm(a) - 5) < 0.001;
+});
+
+check("simd.vector.lInfNorm", () => {
+    const a = ramp64();
+    a[63] = -100;
+    return vector.lInfNorm(a) === 100;
+});
+
+check("simd.distance.euclidean", () => {
+    const a = zeros64();
+    a[0] = 3;
+    a[1] = 4;
+    return Math.abs(distance.euclidean(a, zeros64()) - 5) < 0.001;
+});
+
+check("simd.distance.cosineSimilarity", () => {
+    return Math.abs(distance.cosineSimilarity(ones64(), ones64()) - 1) < 0.001;
+});
+
+check("simd.matrix.frobeniusNorm", () => {
+    return Math.abs(matrix.frobeniusNorm(ones64(), 8, 8) - 8) < 0.001;
+});
+
+check("simd.quantize.quantizeInt8", () => {
+    const r = quantize.quantizeInt8(ramp64());
+    return r.quantized.length === 64 && r.scale > 0;
+});
+
 const failed = checks.filter(([, ok]) => !ok);
 if (failed.length > 0) {
     console.error(\`SMOKE FAIL: \${failed.length} module(s) failed\`);
