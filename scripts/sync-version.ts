@@ -1,7 +1,7 @@
 import { Effect, Optic, FileSystem } from 'effect';
 import pkg from "../package.json";
 import cargo_ffi from "../crates/rustkit-ffi/Cargo.toml";
-import cargo_core from "../crates/rustkit-ffi/Cargo.toml";
+import cargo_core from "../crates/rustkit-core/Cargo.toml";
 import { BunRuntime } from "@effect/platform-bun"; 
 import { layers } from './common';
 
