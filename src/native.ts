@@ -2,7 +2,7 @@ import { dlopen, ptr } from "bun:ffi";
 import { join } from "node:path";
 import { existsSync } from "node:fs";
 
-function resolveLibraryPath(): string {
+function resolveLibrary(): { path: string; platform: string } {
     const platform = process.platform;
     const arch = process.arch;
     const ext = platform === "darwin" ? "dylib" : "so";
@@ -17,13 +17,13 @@ function resolveLibraryPath(): string {
     for (const key of candidates) {
         const bundled = join(import.meta.dir, "..", "platforms", key, `librustkit_ffi.${ext}`);
         if (existsSync(bundled)) {
-            return bundled;
+            return { path: bundled, platform: key };
         }
     }
 
     const dev = join(import.meta.dir, "..", "target", "release", `librustkit_ffi.${ext}`);
     if (existsSync(dev)) {
-        return dev;
+        return { path: dev, platform: `${platform}-${arch}` };
     }
 
     throw new Error(
@@ -31,7 +31,11 @@ function resolveLibraryPath(): string {
     );
 }
 
-const LIB = resolveLibraryPath();
+const resolved = resolveLibrary();
+const LIB = resolved.path;
+
+const resolvedPlatform = resolved.platform;
+const resolvedBinaryPath = resolved.path;
 
 const nativeVector = dlopen(LIB, {
     rk_vector_add_f32: {
@@ -537,6 +541,17 @@ const nativeQuantize = dlopen(LIB, {
     },
 });
 
+const nativeConfig = dlopen(LIB, {
+    rk_config_version: {
+        args: ["ptr", "u64"],
+        returns: "void",
+    },
+    rk_config_simd: {
+        args: [],
+        returns: "u32",
+    },
+});
+
 export {
     nativeVector,
     nativeMatrix,
@@ -550,5 +565,8 @@ export {
     nativeFft,
     nativeEntropy,
     nativeQuantize,
+    nativeConfig,
+    resolvedPlatform,
+    resolvedBinaryPath,
     ptr,
 };

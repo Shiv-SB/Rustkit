@@ -10,3 +10,4 @@ export * as distance from "./packages/distance";
 export * as fft from "./packages/fft";
 export * as entropy from "./packages/entropy";
 export * as quantize from "./packages/quantize";
+export { config } from "./packages/config";

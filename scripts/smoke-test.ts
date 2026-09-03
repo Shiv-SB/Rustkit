@@ -8,7 +8,7 @@ const root = join(import.meta.dir, "..");
 const SMOKE_SCRIPT = `
 import {
     vector, matrix, stats, bitset, string, geohash,
-    crypto, quantile, distance, fft, entropy, quantize,
+    crypto, quantile, distance, fft, entropy, quantize, config,
 } from "rustkit";
 
 const checks: Array<[string, boolean]> = [];
@@ -23,6 +23,15 @@ function check(name: string, fn: () => boolean) {
         console.error("FAIL:", name, "-", (e as Error).message);
     }
 }
+
+check("config", () => {
+    return (
+        /^\\d+\\.\\d+\\.\\d+/.test(config.version) &&
+        config.platform.length > 0 &&
+        config.binaryPath.length > 0 &&
+        ["scalar", "neon", "avx2", "sse2"].includes(config.simd)
+    );
+});
 
 check("vector.add", () => {
     const r = vector.add(new Float32Array([1, 2]), new Float32Array([3, 4]));
@@ -147,9 +156,10 @@ console.log("SMOKE OK");
 const tmp = mkdtempSync(join(tmpdir(), "rustkit-smoke-"));
 try {
     console.log("PACK ...");
-    execSync("bunx npm pack --pack-destination " + tmp, { cwd: root, stdio: "inherit" });
-
-    const tgz = execSync(`ls ${tmp}/*.tgz`).toString().trim();
+    // --quiet prints only the tarball path, so no globbing needed.
+    const tgz = execSync(`bun pm pack --destination ${tmp} --quiet`, { cwd: root })
+        .toString()
+        .trim();
     console.log("TGZ:", tgz);
 
     console.log("INIT temp project ...");

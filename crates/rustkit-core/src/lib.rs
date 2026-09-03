@@ -12,3 +12,4 @@ pub mod entropy;
 pub mod quantize;
 
 mod simd;
+pub mod config;
