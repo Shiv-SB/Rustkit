@@ -2,7 +2,7 @@
 
 A numeric library for [Bun](https://bun.com), implemented in Rust and exposed through `bun:ffi`. All numeric work happens in Rust — the TypeScript layer is a thin validated wrapper over the native binary.
 
-Hot kernels (dot products, reductions, element-wise ops) use explicit SIMD — NEON on AArch64 (Apple Silicon and Linux arm64) — with auto-vectorized scalar fallbacks on other targets.
+Hot reductions (dot, sum, l1, squared-diff-sum, max-abs) use explicit SIMD — NEON on AArch64 (Apple Silicon and Linux arm64), AVX2/SSE2 on x86_64 chosen at runtime via CPU feature detection — with auto-vectorized scalar fallbacks on other targets.
 
 ## Install
 
@@ -236,7 +236,7 @@ import { config } from "rustkit";
 config.version;      // "0.1.0" — kept in sync with package.json and the Rust crates
 config.platform;     // "darwin-arm64"
 config.binaryPath;   // absolute path to the loaded librustkit_ffi binary
-config.simd;         // "neon" | "scalar" | "avx2" | "sse2"
+config.simd;         // "neon" | "avx2" | "sse2" | "scalar"
 ```
 
 ## Supported platforms
@@ -299,7 +299,7 @@ tests/<module>.test.ts                     # 5. tests
 - **All vector ops are `f32`** (`Float32Array`) — mismatched types silently corrupt memory.
 - **In-place FFI ops** (clamp, sort, zscore) mutate the Rust buffer directly; the TS wrapper copies first so the caller's array is never mutated.
 - **Null checks live in the FFI layer**, never in core.
-- **SIMD** — hot reductions (dot, sum, l1, squared-diff-sum, max-abs) live in `crates/rustkit-core/src/simd.rs`: explicit NEON on AArch64, scalar fallbacks elsewhere. Add new kernels there, not inline in algorithms.
+- **SIMD** — hot reductions (dot, sum, l1, squared-diff-sum, max-abs) live in `crates/rustkit-core/src/simd.rs`: explicit NEON on AArch64, AVX2/SSE2 on x86_64 (runtime dispatch via `is_x86_feature_detected!`, never `target-cpu=native`), scalar fallbacks elsewhere. Add new kernels there, not inline in algorithms.
 
 ### Commands
 

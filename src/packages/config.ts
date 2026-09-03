@@ -1,6 +1,11 @@
 import { nativeConfig, ptr, resolvedPlatform, resolvedBinaryPath } from "../native";
 
-const SIMD_NAMES = ["scalar", "neon", "avx2", "sse2"] as const;
+/**
+ * Index contract shared with `rk_config_simd` in `crates/rustkit-ffi/src/config.rs`:
+ * 0 = scalar, 1 = neon, 2 = avx2, 3 = sse2. Both sides must stay in sync —
+ * the FFI side returns this index for the user-facing backend name.
+ */
+export const SIMD_NAMES = ["scalar", "neon", "avx2", "sse2"] as const;
 export type SimdBackend = (typeof SIMD_NAMES)[number];
 
 export interface RustkitConfig {
@@ -10,7 +15,7 @@ export interface RustkitConfig {
     readonly platform: string;
     /** The absolute path to the loaded native binary. */
     readonly binaryPath: string;
-    /** The active SIMD backend for hot kernels (e.g., "neon", "avx2", "sse2", or "scalar"). */
+    /** The active SIMD backend for hot reductions (e.g., "neon", "avx2", "sse2", or "scalar"). */
     readonly simd: SimdBackend;
 }
 
