@@ -6,8 +6,8 @@ const root = join(import.meta.dir, "..");
 
 interface PlatformTarget {
     ext: "dylib" | "so";
-    rustupTarget?: string;
-    zigbuild?: boolean;
+    rustupTarget: string;
+    rustflags?: string;
     build: string[];
     artifact: string;
 }
@@ -15,36 +15,39 @@ interface PlatformTarget {
 const TARGETS: Record<string, PlatformTarget> = {
     "darwin-arm64": {
         ext: "dylib",
-        build: ["cargo", "build", "--release", "-p", "rustkit-ffi"],
-        artifact: join("target", "release", "librustkit_ffi.dylib"),
+        rustupTarget: "aarch64-apple-darwin",
+        build: ["cargo", "zigbuild", "--release", "-p", "rustkit-ffi", "--target", "aarch64-apple-darwin"],
+        artifact: join("target", "aarch64-apple-darwin", "release", "librustkit_ffi.dylib"),
     },
     "darwin-x64": {
         ext: "dylib",
         rustupTarget: "x86_64-apple-darwin",
-        build: ["cargo", "build", "--release", "-p", "rustkit-ffi", "--target", "x86_64-apple-darwin"],
+        build: ["cargo", "zigbuild", "--release", "-p", "rustkit-ffi", "--target", "x86_64-apple-darwin"],
         artifact: join("target", "x86_64-apple-darwin", "release", "librustkit_ffi.dylib"),
     },
     "linux-x64-gnu": {
         ext: "so",
-        zigbuild: true,
+        rustupTarget: "x86_64-unknown-linux-gnu",
         build: ["cargo", "zigbuild", "--release", "-p", "rustkit-ffi", "--target", "x86_64-unknown-linux-gnu"],
         artifact: join("target", "x86_64-unknown-linux-gnu", "release", "librustkit_ffi.so"),
     },
     "linux-arm64-gnu": {
         ext: "so",
-        zigbuild: true,
+        rustupTarget: "aarch64-unknown-linux-gnu",
         build: ["cargo", "zigbuild", "--release", "-p", "rustkit-ffi", "--target", "aarch64-unknown-linux-gnu"],
         artifact: join("target", "aarch64-unknown-linux-gnu", "release", "librustkit_ffi.so"),
     },
     "linux-x64-musl": {
         ext: "so",
-        zigbuild: true,
+        rustupTarget: "x86_64-unknown-linux-musl",
+        rustflags: "-C target-feature=-crt-static",
         build: ["cargo", "zigbuild", "--release", "-p", "rustkit-ffi", "--target", "x86_64-unknown-linux-musl"],
         artifact: join("target", "x86_64-unknown-linux-musl", "release", "librustkit_ffi.so"),
     },
     "linux-arm64-musl": {
         ext: "so",
-        zigbuild: true,
+        rustupTarget: "aarch64-unknown-linux-musl",
+        rustflags: "-C target-feature=-crt-static",
         build: ["cargo", "zigbuild", "--release", "-p", "rustkit-ffi", "--target", "aarch64-unknown-linux-musl"],
         artifact: join("target", "aarch64-unknown-linux-musl", "release", "librustkit_ffi.so"),
     },
@@ -77,18 +80,18 @@ for (const key of keys) {
         continue;
     }
 
-    if (target.zigbuild && !hasCommand("cargo-zigbuild")) {
-        console.warn(`SKIP ${key}: cargo-zigbuild not installed. Install with: brew install cargo-zigbuild (or cargo install cargo-zigbuild)`);
+    if (!hasCommand("cargo-zigbuild")) {
+        console.error(`FAIL ${key}: cargo-zigbuild not installed. Install with: brew install cargo-zigbuild (or cargo install cargo-zigbuild)`);
+        failed = true;
         continue;
     }
 
-    if (target.rustupTarget) {
-        console.log(`RUSTUP target add ${target.rustupTarget} ...`);
-        execSync(`rustup target add ${target.rustupTarget}`, { cwd: root, stdio: "inherit" });
-    }
+    console.log(`RUSTUP target add ${target.rustupTarget} ...`);
+    execSync(`rustup target add ${target.rustupTarget}`, { cwd: root, stdio: "inherit" });
 
     console.log(`BUILD ${key} ...`);
-    execSync(target.build.join(" "), { cwd: root, stdio: "inherit" });
+    const env = target.rustflags ? { ...process.env, RUSTFLAGS: target.rustflags } : process.env;
+    execSync(target.build.join(" "), { cwd: root, stdio: "inherit", env });
 
     const artifact = join(root, target.artifact);
     if (!existsSync(artifact)) {
