@@ -14,6 +14,10 @@ describe("quantize.quantizeInt8", () => {
         expect(result.quantized.length).toBe(1);
         expect(result.scale).toBeGreaterThan(0);
     });
+
+    test("should throw on empty input", () => {
+        expect(() => quantize.quantizeInt8(new Float32Array([]))).toThrow("Vector must not be empty");
+    });
 });
 
 describe("quantize.dequantizeInt8", () => {
@@ -30,6 +34,10 @@ describe("quantize.dequantizeInt8", () => {
         for (let i = 0; i < original.length; i++) {
             expect(recovered[i]!).toBeCloseTo(original[i]!, 1);
         }
+    });
+
+    test("should throw on empty input", () => {
+        expect(() => quantize.dequantizeInt8(new Int8Array([]), 0.01)).toThrow("Vector must not be empty");
     });
 });
 
@@ -49,6 +57,10 @@ describe("quantize.quantizeInt4", () => {
     test("should handle single element", () => {
         const result = quantize.quantizeInt4(new Float32Array([1.0]));
         expect(result.quantized.length).toBe(1);
+    });
+
+    test("should throw on empty input", () => {
+        expect(() => quantize.quantizeInt4(new Float32Array([]))).toThrow("Vector must not be empty");
     });
 });
 

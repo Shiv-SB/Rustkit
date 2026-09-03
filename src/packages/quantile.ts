@@ -17,18 +17,24 @@ export function createTDigest(maxCentroids: number = 100): TDigest {
 }
 
 export function tDigestAdd(digest: TDigest, value: number): void {
-    nativeQuantile.symbols.rk_quantile_t_digest_add(
+    if (digest.numCentroids >= digest.maxCentroids) {
+        throw new Error("TDigest is full");
+    }
+
+    digest.numCentroids = Number(nativeQuantile.symbols.rk_quantile_t_digest_add(
         ptr(digest.means),
         ptr(digest.counts),
-        ptr(new BigUint64Array([BigInt(digest.numCentroids)])),
+        digest.numCentroids,
         digest.maxCentroids,
         value
-    );
-
-    digest.numCentroids++;
+    ));
 }
 
 export function tDigestQuantile(digest: TDigest, q: number): number {
+    if (q < 0 || q > 1) {
+        throw new Error("q must be between 0 and 1");
+    }
+
     return nativeQuantile.symbols.rk_quantile_t_digest_quantile(
         ptr(digest.means),
         ptr(digest.counts),

@@ -13,6 +13,10 @@ export function encode(
     lng: number,
     precision: number
 ): string {
+    if (!Number.isInteger(precision) || precision < 1 || precision > 12) {
+        throw new Error("Precision must be an integer between 1 and 12");
+    }
+
     const out = new Uint8Array(precision);
 
     nativeGeohash.symbols.rk_geohash_encode(lat, lng, precision, ptr(out));
@@ -41,6 +45,10 @@ export function neighbor(
     hash: string,
     direction: number
 ): string {
+    if (!Number.isInteger(direction) || direction < 0 || direction > 7) {
+        throw new Error("Direction must be an integer between 0 and 7");
+    }
+
     const encoder = new TextEncoder();
     const hashBytes = encoder.encode(hash);
 

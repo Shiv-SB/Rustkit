@@ -16,7 +16,7 @@ There is no linter configured. Rust has no clippy/rustfmt config checked in.
 ## Architecture
 
 - **`crates/rustkit-core`** — Pure Rust algorithms. Each operation is its own file under `src/<module>/<operation>.rs`. Modules: vector, matrix, stats, bitset, string, geohash, crypto, quantile, distance, fft, entropy, quantize, config.
-- **`crates/rustkit-ffi`** — `#[unsafe(no_mangle)] extern "C"` wrappers around core. Builds as `cdylib`. One FFI file per module (`src/vector.rs`, etc.). Naming: `rk_<module>_<function>_<type>`.
+- **`crates/rustkit-ffi`** — `#[unsafe(no_mangle)] extern "C"` wrappers around core. Builds as `cdylib`. One FFI file per module (`src/vector.rs`, etc.). Naming: `rk_<module>_<function>_<type>` — the `_<type>` suffix applies where the data type is ambiguous (vector/matrix/stats/distance/fft/entropy/quantize operate on multiple types); modules that operate on a single obvious type (bitset/string/geohash/crypto/quantile/config) omit it.
 - **`src/native.ts`** — `dlopen` binding listing every FFI symbol with its signature. Add new FFI functions here.
 - **`src/packages/*.ts`** — TypeScript wrappers that validate inputs then call `native.symbols.*`. One file per module, re-exported from `src/index.ts` (except `config`, which is a named export, not a namespace).
 

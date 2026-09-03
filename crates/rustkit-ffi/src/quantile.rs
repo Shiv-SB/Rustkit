@@ -2,19 +2,18 @@
 pub unsafe extern "C" fn rk_quantile_t_digest_add(
     centroids_mean: *mut f32,
     centroids_count: *mut f32,
-    num_centroids: *mut usize,
+    num_centroids: usize,
     max_centroids: usize,
     value: f32,
-) {
-    if centroids_mean.is_null() || centroids_count.is_null() || num_centroids.is_null() {
-        return;
+) -> usize {
+    if centroids_mean.is_null() || centroids_count.is_null() {
+        return num_centroids;
     }
-
+    
     let mean_slice = unsafe { std::slice::from_raw_parts_mut(centroids_mean, max_centroids) };
     let count_slice = unsafe { std::slice::from_raw_parts_mut(centroids_count, max_centroids) };
-    let num = unsafe { &mut *num_centroids };
 
-    rustkit_core::quantile::t_digest_add(mean_slice, count_slice, num, value);
+    rustkit_core::quantile::t_digest_add(mean_slice, count_slice, num_centroids, value)
 }
 
 #[unsafe(no_mangle)]

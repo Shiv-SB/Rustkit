@@ -10,6 +10,7 @@ import {
     vector, matrix, stats, bitset, string, geohash,
     crypto, quantile, distance, fft, entropy, quantize, config,
 } from "rustkit";
+import pkg from "rustkit/package.json";
 
 const checks: Array<[string, boolean]> = [];
 
@@ -33,9 +34,19 @@ check("config", () => {
     );
 });
 
+check("config.version matches package.json", () => {
+    return config.version === pkg.version;
+});
+
 check("vector.add", () => {
     const r = vector.add(new Float32Array([1, 2]), new Float32Array([3, 4]));
     return r[0] === 4 && r[1] === 6;
+});
+
+check("vector.sort", () => {
+    const a = new Float32Array([3, 1, 2]);
+    const r = vector.sort(a);
+    return r[0] === 1 && r[1] === 2 && r[2] === 3 && a[0] === 3;
 });
 
 check("matrix.mul", () => {

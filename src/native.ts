@@ -2,17 +2,26 @@ import { dlopen, ptr } from "bun:ffi";
 import { join } from "node:path";
 import { existsSync } from "node:fs";
 
+function isMusl(): boolean {
+    if (process.platform !== "linux") return false;
+    const arch = process.arch === "x64" ? "x86_64" : process.arch === "arm64" ? "aarch64" : process.arch;
+    return existsSync(`/lib/ld-musl-${arch}.so.1`);
+}
+
+export function platformCandidates(platform: string, arch: string, musl: boolean): string[] {
+    if (platform === "linux") {
+        const first = musl ? "musl" : "gnu";
+        return [`linux-${arch}-${first}`, `linux-${arch}-${first === "musl" ? "gnu" : "musl"}`];
+    }
+    return [`${platform}-${arch}`];
+}
+
 function resolveLibrary(): { path: string; platform: string } {
     const platform = process.platform;
     const arch = process.arch;
     const ext = platform === "darwin" ? "dylib" : "so";
 
-    const candidates: string[] = [];
-    if (platform === "linux") {
-        candidates.push(`linux-${arch}-gnu`, `linux-${arch}-musl`);
-    } else {
-        candidates.push(`${platform}-${arch}`);
-    }
+    const candidates = platformCandidates(platform, arch, isMusl());
 
     for (const key of candidates) {
         const bundled = join(import.meta.dir, "..", "platforms", key, `librustkit_ffi.${ext}`);
@@ -132,6 +141,10 @@ const nativeVector = dlopen(LIB, {
     },
     rk_vector_argsort_f32: {
         args: ["ptr", "ptr", "u64"],
+        returns: "void",
+    },
+    rk_vector_sort_f32: {
+        args: ["ptr", "u64"],
         returns: "void",
     },
 });
@@ -400,8 +413,8 @@ const nativeCrypto = dlopen(LIB, {
 
 const nativeQuantile = dlopen(LIB, {
     rk_quantile_t_digest_add: {
-        args: ["ptr", "ptr", "ptr", "u64", "float"],
-        returns: "void",
+        args: ["ptr", "ptr", "u64", "u64", "float"],
+        returns: "u64",
     },
     rk_quantile_t_digest_quantile: {
         args: ["ptr", "ptr", "u64", "float"],

@@ -216,4 +216,20 @@ describe("string.soundex", () => {
     test("should start with first letter", () => {
         expect(string.soundex("Ashcraft")[0]).toBe("A");
     });
+
+    test("should handle mixed case", () => {
+        expect(string.soundex("Robert")).toBe(string.soundex("robert"));
+    });
+
+    test("should throw on empty input", () => {
+        expect(() => string.soundex("")).toThrow("Input must not be empty");
+    });
+
+    test("should throw on non-alphabetic input", () => {
+        expect(() => string.soundex("123")).toThrow("Input must contain only ASCII alphabetic characters");
+    });
+
+    test("should throw on mixed alphanumeric input", () => {
+        expect(() => string.soundex("Robert1")).toThrow("Input must contain only ASCII alphabetic characters");
+    });
 });

@@ -58,6 +58,10 @@ describe("fft.rfft", () => {
         expect(result.real.length).toBe(1);
         expect(result.imag.length).toBe(1);
     });
+
+    test("should throw on empty input", () => {
+        expect(() => fft.rfft(new Float32Array([]))).toThrow("Vector must not be empty");
+    });
 });
 
 describe("fft.irfft", () => {
@@ -102,5 +106,9 @@ describe("fft.powerSpectrum", () => {
     test("should handle single element", () => {
         const result = fft.powerSpectrum(new Float32Array([42]));
         expect(result.length).toBe(1);
+    });
+
+    test("should throw on empty input", () => {
+        expect(() => fft.powerSpectrum(new Float32Array([]))).toThrow("Vector must not be empty");
     });
 });

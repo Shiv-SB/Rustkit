@@ -3,27 +3,31 @@ import { join } from "node:path";
 const root = join(import.meta.dir, "..");
 const publish = process.argv.includes("--publish");
 
-function step(name: string, cmd: string[]) {
+async function step(name: string, cmd: string[]) {
     console.log(`\n=== ${name} ===`);
-    Bun.spawn(cmd, {
+    const proc = Bun.spawn(cmd, {
         cwd: root,
-        stdin: "inherit", 
+        stdin: "inherit",
         stdout: "inherit",
         stderr: "inherit",
     });
+    const exitCode = await proc.exited;
+    if (exitCode !== 0) {
+        throw new Error(`${name} failed with exit code ${exitCode}`);
+    }
 }
 
 try {
-    step("sync version", ["bun", "run", "sync:version"]);
-    step("build platforms", ["bun", "run", "build:platforms"]);
-    step("verify platforms", ["bun", "scripts/verify-platforms.ts", `${publish ? "" : "--warn"}`]);
-    step("test suite", ["bun", "test"]);
-    step("build dist", ["bun", "run", "build"]);
-    step("smoke test", ["bun", "smoke"]);
+    await step("sync version", ["bun", "run", "sync:version"]);
+    await step("build platforms", ["bun", "run", "build:platforms"]);
+    await step("verify platforms", ["bun", "scripts/verify-platforms.ts", `${publish ? "" : "--warn"}`]);
+    await step("test suite", ["bun", "test"]);
+    await step("build dist", ["bun", "run", "build"]);
+    await step("smoke test", ["bun", "smoke"]);
 
     if (publish) {
         console.log("\n=== PUBLISH ===");
-        step("publish", ["bun", "publish", "--access", "public"]);
+        await step("publish", ["bun", "publish", "--access", "public"]);
         console.log("\nPUBLISHED");
     } else {
         console.log("\nDRY-RUN: no publish (pass --publish to ship)");

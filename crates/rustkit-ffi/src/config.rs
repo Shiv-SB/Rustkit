@@ -4,7 +4,8 @@ pub unsafe extern "C" fn rk_config_version(out: *mut u8, out_len: usize) {
         return;
     }
 
-    let bytes = rustkit_core::config::version().as_bytes();
+    // rustkit-ffi drives the release; its version is the source of truth.
+    let bytes = env!("CARGO_PKG_VERSION").as_bytes();
     let n = bytes.len().min(out_len);
     unsafe { std::ptr::copy_nonoverlapping(bytes.as_ptr(), out, n) };
 }

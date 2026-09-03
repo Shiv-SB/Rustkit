@@ -26,6 +26,18 @@ describe("geohash.encode", () => {
         const hash2 = geohash.encode(48.8566, 2.3522, 6);
         expect(hash1).toBe(hash2);
     });
+
+    test("should throw on precision 0", () => {
+        expect(() => geohash.encode(48.8566, 2.3522, 0)).toThrow("Precision must be an integer between 1 and 12");
+    });
+
+    test("should throw on precision above 12", () => {
+        expect(() => geohash.encode(48.8566, 2.3522, 13)).toThrow("Precision must be an integer between 1 and 12");
+    });
+
+    test("should throw on non-integer precision", () => {
+        expect(() => geohash.encode(48.8566, 2.3522, 5.5)).toThrow("Precision must be an integer between 1 and 12");
+    });
 });
 
 describe("geohash.decode", () => {
@@ -82,6 +94,21 @@ describe("geohash.neighbor", () => {
         expect(typeof west).toBe("string");
         expect(west.length).toBe(hash.length);
         expect(west).not.toBe(hash);
+    });
+
+    test("should throw on direction below 0", () => {
+        const hash = geohash.encode(48.8566, 2.3522, 6);
+        expect(() => geohash.neighbor(hash, -1)).toThrow("Direction must be an integer between 0 and 7");
+    });
+
+    test("should throw on direction above 7", () => {
+        const hash = geohash.encode(48.8566, 2.3522, 6);
+        expect(() => geohash.neighbor(hash, 8)).toThrow("Direction must be an integer between 0 and 7");
+    });
+
+    test("should throw on non-integer direction", () => {
+        const hash = geohash.encode(48.8566, 2.3522, 6);
+        expect(() => geohash.neighbor(hash, 1.5)).toThrow("Direction must be an integer between 0 and 7");
     });
 });
 

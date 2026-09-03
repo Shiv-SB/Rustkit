@@ -570,3 +570,29 @@ describe("vector.argsort", () => {
         expect(a).toEqual(new Float32Array([3, 1, 2]));
     });
 });
+
+describe("vector.sort", () => {
+    test("should sort ascending", () => {
+        const result = vector.sort(new Float32Array([3, 1, 2]));
+        expect(result).toEqual(new Float32Array([1, 2, 3]));
+    });
+
+    test("should handle negatives and duplicates", () => {
+        const result = vector.sort(new Float32Array([-1, 5, -1, 0]));
+        expect(result).toEqual(new Float32Array([-1, -1, 0, 5]));
+    });
+
+    test("should handle single element", () => {
+        expect(vector.sort(new Float32Array([42]))).toEqual(new Float32Array([42]));
+    });
+
+    test("should handle empty array", () => {
+        expect(vector.sort(new Float32Array([]))).toEqual(new Float32Array([]));
+    });
+
+    test("should not mutate original", () => {
+        const a = new Float32Array([3, 1, 2]);
+        vector.sort(a);
+        expect(a).toEqual(new Float32Array([3, 1, 2]));
+    });
+});

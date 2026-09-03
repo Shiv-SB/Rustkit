@@ -68,6 +68,10 @@ export function ifft(
 export function rfft(
     real: Float32Array
 ): { real: Float32Array; imag: Float32Array } {
+    if (real.length === 0) {
+        throw new Error("Vector must not be empty");
+    }
+
     const outLen = Math.floor(real.length / 2) + 1;
     const realOut = new Float32Array(outLen);
     const imagOut = new Float32Array(outLen);
@@ -155,6 +159,10 @@ export function convolve(
 export function powerSpectrum(
     real: Float32Array
 ): Float32Array {
+    if (real.length === 0) {
+        throw new Error("Vector must not be empty");
+    }
+
     const outLen = Math.floor(real.length / 2) + 1;
     const out = new Float32Array(outLen);
 

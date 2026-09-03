@@ -10,6 +10,10 @@ import { nativeQuantize, ptr } from "../native";
 export function quantizeInt8(
     a: Float32Array
 ): { quantized: Int8Array; scale: number } {
+    if (a.length === 0) {
+        throw new Error("Vector must not be empty");
+    }
+
     const out = new Int8Array(a.length);
 
     const scale = nativeQuantize.symbols.rk_quantize_quantize_int8_f32(
@@ -33,6 +37,10 @@ export function dequantizeInt8(
     quantized: Int8Array,
     scale: number
 ): Float32Array {
+    if (quantized.length === 0) {
+        throw new Error("Vector must not be empty");
+    }
+
     const out = new Float32Array(quantized.length);
 
     nativeQuantize.symbols.rk_quantize_dequantize_int8_f32(
@@ -56,6 +64,10 @@ export function dequantizeInt8(
 export function quantizeInt4(
     a: Float32Array
 ): { quantized: Uint8Array; scale: number } {
+    if (a.length === 0) {
+        throw new Error("Vector must not be empty");
+    }
+
     const out = new Uint8Array(Math.ceil(a.length / 2));
 
     const scale = nativeQuantize.symbols.rk_quantize_quantize_int4_f32(

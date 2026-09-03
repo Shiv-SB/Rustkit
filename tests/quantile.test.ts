@@ -32,6 +32,14 @@ describe("quantile.tDigestAdd", () => {
         quantile.tDigestAdd(digest, 3);
         expect(digest.numCentroids).toBe(3);
     });
+
+    test("should throw when digest is full", () => {
+        const digest = quantile.createTDigest(2);
+        quantile.tDigestAdd(digest, 1);
+        quantile.tDigestAdd(digest, 2);
+        expect(() => quantile.tDigestAdd(digest, 3)).toThrow("TDigest is full");
+        expect(digest.numCentroids).toBe(2);
+    });
 });
 
 describe("quantile.tDigestQuantile", () => {
@@ -49,6 +57,28 @@ describe("quantile.tDigestQuantile", () => {
         const q = quantile.tDigestQuantile(digest, 0.5);
         expect(q).toBeGreaterThanOrEqual(1);
         expect(q).toBeLessThanOrEqual(3);
+    });
+
+    test("should compute quantile after filling to capacity", () => {
+        const digest = quantile.createTDigest(3);
+        quantile.tDigestAdd(digest, 1);
+        quantile.tDigestAdd(digest, 2);
+        quantile.tDigestAdd(digest, 3);
+        const q = quantile.tDigestQuantile(digest, 0.5);
+        expect(q).toBeGreaterThanOrEqual(1);
+        expect(q).toBeLessThanOrEqual(3);
+    });
+
+    test("should throw on q below 0", () => {
+        const digest = quantile.createTDigest();
+        quantile.tDigestAdd(digest, 42);
+        expect(() => quantile.tDigestQuantile(digest, -0.1)).toThrow("q must be between 0 and 1");
+    });
+
+    test("should throw on q above 1", () => {
+        const digest = quantile.createTDigest();
+        quantile.tDigestAdd(digest, 42);
+        expect(() => quantile.tDigestQuantile(digest, 1.1)).toThrow("q must be between 0 and 1");
     });
 });
 

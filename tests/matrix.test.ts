@@ -236,6 +236,18 @@ describe("matrix.eye", () => {
             new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1])
         );
     });
+
+    test("should throw on n = 0", () => {
+        expect(() => matrix.eye(0)).toThrow("n must be a positive integer");
+    });
+
+    test("should throw on negative n", () => {
+        expect(() => matrix.eye(-2)).toThrow("n must be a positive integer");
+    });
+
+    test("should throw on non-integer n", () => {
+        expect(() => matrix.eye(2.5)).toThrow("n must be a positive integer");
+    });
 });
 
 describe("matrix.scale", () => {

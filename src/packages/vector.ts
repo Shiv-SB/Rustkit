@@ -547,3 +547,27 @@ export function argsort(
 
     return out;
 }
+
+/**
+ * Sorts a vector in ascending order.
+ *
+ * @param a - Input vector (not mutated).
+ * @returns A new Float32Array containing the elements of `a` sorted in
+ * ascending order.
+ */
+export function sort(
+    a: Float32Array
+): Float32Array {
+    if (a.length === 0) {
+        return new Float32Array(0);
+    }
+
+    const out = new Float32Array(a);
+
+    nativeVector.symbols.rk_vector_sort_f32(
+        ptr(out),
+        out.length
+    );
+
+    return out;
+}

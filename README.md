@@ -42,7 +42,7 @@ vector.norm(new Float32Array([3, 4]));                             // 5
 vector.argsort(new Float32Array([30, 10, 20]));                    // [1, 2, 0]
 ```
 
-Also: `sub`, `mul`, `div`, `cross`, `normalize`, `scale`, `argmin`, `argmax`, `sum`, `mean`, `lerp`, `clamp`, `abs`, `min`, `max`, `sqrt`, `reciprocal`, `l1Norm`, `lInfNorm`, `outer`.
+Also: `sub`, `mul`, `div`, `cross`, `normalize`, `scale`, `argmin`, `argmax`, `sum`, `mean`, `lerp`, `clamp`, `abs`, `min`, `max`, `sqrt`, `reciprocal`, `l1Norm`, `lInfNorm`, `outer`, `argsort`, `sort`.
 
 ### matrix
 
@@ -268,7 +268,7 @@ The library is a five-layer pipeline. Every new function touches all five:
 
 ```
 crates/rustkit-core/src/<module>/<op>.rs   # 1. pure Rust algorithm
-crates/rustkit-ffi/src/<module>.rs         # 2. extern "C" wrapper (rk_<module>_<op>_<type>)
+crates/rustkit-ffi/src/<module>.rs         # 2. extern "C" wrapper (rk_<module>_<op>[_<type>])
 src/native.ts                              # 3. dlopen symbol table entry
 src/packages/<module>.ts                   # 4. validated TS wrapper
 tests/<module>.test.ts                     # 5. tests
@@ -277,7 +277,7 @@ tests/<module>.test.ts                     # 5. tests
 ### Adding a new function
 
 1. **Core** — implement the algorithm in `crates/rustkit-core/src/<module>/<op>.rs` and export it from the module's `mod.rs`. Keep it pure: no null checks, no FFI concerns.
-2. **FFI** — add an `extern "C"` wrapper in `crates/rustkit-ffi/src/<module>.rs` using `#[unsafe(no_mangle)]` (edition 2024 syntax). Null-check the pointers here — the core never does. Name it `rk_<module>_<op>_<type>`.
+2. **FFI** — add an `extern "C"` wrapper in `crates/rustkit-ffi/src/<module>.rs` using `#[unsafe(no_mangle)]` (edition 2024 syntax). Null-check the pointers here — the core never does. Name it `rk_<module>_<op>_<type>` — the `_<type>` suffix applies where the data type is ambiguous (vector/matrix/stats/distance/fft/entropy/quantize); modules with a single obvious type (bitset/string/geohash/crypto/quantile/config) omit it.
 3. **Symbol table** — register the symbol in `src/native.ts` with the correct arg/return types (`ptr`, `u64`, `float`, etc.).
 4. **TS wrapper** — add the validated wrapper in `src/packages/<module>.ts`. Validate every user-supplied input here (lengths, bounds, ranges) and re-export from `src/index.ts` if it's a new public entry point.
 5. **Tests** — add tests in `tests/<module>.test.ts` covering happy path, edge cases, and every validation throw.

@@ -149,6 +149,10 @@ export function trace(
 export function eye(
     n: number
 ): Float32Array {
+    if (!Number.isInteger(n) || n <= 0) {
+        throw new Error("n must be a positive integer");
+    }
+
     const out = new Float32Array(n * n);
 
     nativeMatrix.symbols.rk_matrix_eye_f32(

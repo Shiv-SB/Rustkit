@@ -22,6 +22,7 @@ pub mod l1_norm;
 pub mod l_inf_norm;
 pub mod outer;
 pub mod argsort;
+pub mod sort;
 
 pub use add::add_f32;
 pub use sub::sub_f32;
@@ -47,3 +48,4 @@ pub use l1_norm::l1_norm_f32;
 pub use l_inf_norm::l_inf_norm_f32;
 pub use outer::outer_f32;
 pub use argsort::argsort_f32;
+pub use sort::sort_f32;

@@ -388,3 +388,17 @@ pub unsafe extern "C" fn rk_vector_argsort_f32(
 
     rustkit_core::vector::argsort_f32(a_slice, out_slice);
 }
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rk_vector_sort_f32(
+    a: *mut f32,
+    len: usize,
+) {
+    if a.is_null() {
+        return;
+    }
+
+    let a_slice = unsafe { std::slice::from_raw_parts_mut(a, len) };
+
+    rustkit_core::vector::sort_f32(a_slice);
+}

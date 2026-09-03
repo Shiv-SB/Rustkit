@@ -133,6 +133,13 @@ export function trigramSimilarity(a: string, b: string): number {
 }
 
 export function soundex(input: string): string {
+    if (input.length === 0) {
+        throw new Error("Input must not be empty");
+    }
+    if (!/^[A-Za-z]+$/.test(input)) {
+        throw new Error("Input must contain only ASCII alphabetic characters");
+    }
+
     const encoder = new TextEncoder();
 
     const inputBytes = encoder.encode(input);
