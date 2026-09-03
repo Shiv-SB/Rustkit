@@ -23,8 +23,6 @@ jobs:
       - name: Set up Node.js and npm
         uses: actions/setup-node@v5
 
-      # npm 11.5.1 or later is required for OIDC-based publishing.
-      # See https://github.com/actions/setup-node/issues/324#issuecomment-970306807
       - name: Upgrade npm
         run: sudo npm install -g npm@latest
 
@@ -88,11 +86,3 @@ jobs:
       # package on npmjs.com (Package > Access > Trusted Publishers > GitHub Actions).
       - name: Publish to npm
         run: npm publish --provenance --access public
-
-      - name: Create GitHub release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
