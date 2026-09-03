@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- GitHub Actions: CI workflow (Linux x64 + macOS arm64 matrix, Rust + TS tests), CodeQL analysis, and an OIDC-based npm publish workflow (`v*.*.*` tags), Dependabot config, issue/PR templates, and a security policy
+
 ## [0.1.0] - 2026-09-03
 
 ### Added

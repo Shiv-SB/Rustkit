@@ -4,6 +4,15 @@ A numeric library for [Bun](https://bun.com), implemented in Rust and exposed th
 
 Hot reductions (dot, sum, l1, squared-diff-sum, max-abs) use explicit SIMD — NEON on AArch64 (Apple Silicon and Linux arm64), AVX2/SSE2 on x86_64 chosen at runtime via CPU feature detection — with auto-vectorized scalar fallbacks on other targets.
 
+<p align="center">
+  <a href="https://github.com/Shiv-SB/Rustkit/actions/workflows/ci.yml"><img src="https://github.com/Shiv-SB/Rustkit/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/Shiv-SB/Rustkit/actions/workflows/codeql.yml"><img src="https://github.com/Shiv-SB/Rustkit/actions/workflows/github-code-scanning/codeql/badge.svg" alt="CodeQL"></a>
+  <a href="https://www.npmjs.com/package/rustkit"><img src="https://img.shields.io/npm/v/rustkit" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/rustkit"><img src="https://img.shields.io/npm/dm/rustkit" alt="npm downloads"></a>
+  <a href="https://github.com/Shiv-SB/Rustkit"><img src="https://img.shields.io/github/stars/Shiv-SB/Rustkit?style=social" alt="GitHub"></a>
+  <a href="https://github.com/Shiv-SB/Rustkit/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Shiv-SB/Rustkit" alt="License"></a>
+</p>
+
 ## Install
 
 ```bash
@@ -322,7 +331,7 @@ The npm package is published from this repo with a single command. The version i
 
 ### Prerequisites
 
-- npm auth: `npm login` (or a valid token in `~/.npmrc`). Verify with `npm whoami`.
+- npm auth for local publishes: `npm login` (or a valid token in `~/.npmrc`). Verify with `npm whoami`. CI publishes use OIDC instead — no token needed (see below).
 - `cargo-zigbuild` for the Linux targets: `brew install cargo-zigbuild` (or `cargo install cargo-zigbuild`). Without it, the 4 Linux binaries are skipped and `--publish` will fail the platform check.
 - The `rustkit` name is already reserved on npm (`0.0.0` placeholder) — publishing a real version publishes over it.
 
@@ -344,6 +353,17 @@ The pipeline runs, in order:
 7. `npm publish` — only with `--publish`
 
 Always run the dry-run first and inspect the output before shipping. The smoke step verifies the actual tarball, not the working tree.
+
+### Automatic releases (GitHub Actions)
+
+Pushing a `v*.*.*` tag triggers `.github/workflows/npm-publish.yml`:
+
+1. Syncs the version from `crates/rustkit-ffi/Cargo.toml` into `package.json` and fails if it doesn't match the tag.
+2. Builds all 6 platform binaries on a macOS arm64 runner (via `cargo-zigbuild`), runs the audit/typecheck/test/build/smoke pipeline, then publishes to npm.
+3. Publishing uses **OIDC** (`id-token: write`) with npm provenance — no `NPM_TOKEN` secret required. One-time setup: register this repo as a Trusted Publisher for the `rustkit` package on npmjs.com (Package → Access → Trusted Publishers → GitHub Actions).
+4. A GitHub release with auto-generated notes is created from the tag.
+
+CI (`.github/workflows/ci.yml`) runs the Rust + TypeScript test suites on Linux x64 and macOS arm64 for every push and pull request; CodeQL (`.github/workflows/codeql.yml`) analyzes the TypeScript layer. Local publishing (`bun run release --publish`) still works as before and uses your npm login.
 
 ## License
 
