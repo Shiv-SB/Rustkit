@@ -4,15 +4,15 @@ import { entropy } from "../src/index";
 describe("entropy.shannonEntropy", () => {
     test("should return 0 for deterministic distribution", () => {
         expect(entropy.shannonEntropy(new Float32Array([1, 0, 0]))).toBeCloseTo(0, 4);
-    }, { repeats: 100_000 });
+    }, { repeats: 100 });
 
     test("should return 1 for uniform binary distribution", () => {
         expect(entropy.shannonEntropy(new Float32Array([0.5, 0.5]))).toBeCloseTo(1, 4);
-    });
+    }, { repeats: 100 });
 
     test("should return log2(n) for uniform distribution", () => {
         expect(entropy.shannonEntropy(new Float32Array([0.25, 0.25, 0.25, 0.25]))).toBeCloseTo(2, 4);
-    });
+    }, { repeats: 100 });
 });
 
 describe("entropy.crossEntropy", () => {

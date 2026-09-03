@@ -1,3 +1,4 @@
 [test]
 # Always enable coverage
 coverage = true
+timeout = 5000
