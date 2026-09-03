@@ -8,6 +8,16 @@ function ffiPtr(bytes: Uint8Array) {
     return bytes.length === 0 ? ptr(EMPTY) : ptr(bytes);
 }
 
+/**
+ * Encodes a latitude/longitude pair into a geohash string.
+ *
+ * @param lat - Latitude in degrees.
+ * @param lng - Longitude in degrees.
+ * @param precision - Number of characters in the hash, an integer in
+ * `[1, 12]`.
+ * @returns The geohash string of the given length.
+ * @throws {Error} If `precision` is not an integer in `[1, 12]`.
+ */
 export function encode(
     lat: number,
     lng: number,
@@ -24,6 +34,12 @@ export function encode(
     return new TextDecoder().decode(out);
 }
 
+/**
+ * Decodes a geohash string into the coordinates of its cell center.
+ *
+ * @param hash - Geohash string.
+ * @returns The center `{ lat, lng }` of the cell in degrees.
+ */
 export function decode(hash: string): { lat: number; lng: number } {
     const encoder = new TextEncoder();
     const hashBytes = encoder.encode(hash);
@@ -41,6 +57,16 @@ export function decode(hash: string): { lat: number; lng: number } {
     return { lat: lat[0]!, lng: lng[0]! };
 }
 
+/**
+ * Returns the geohash of the cell adjacent to `hash` in the given
+ * direction.
+ *
+ * @param hash - Source geohash.
+ * @param direction - Compass direction as an integer in `[0, 7]` (0 = N,
+ * 1 = NE, 2 = E, 3 = SE, 4 = S, 5 = SW, 6 = W, 7 = NW).
+ * @returns The neighboring geohash, same length as `hash`.
+ * @throws {Error} If `direction` is not an integer in `[0, 7]`.
+ */
 export function neighbor(
     hash: string,
     direction: number
@@ -64,6 +90,15 @@ export function neighbor(
     return new TextDecoder().decode(out);
 }
 
+/**
+ * Computes the great-circle distance between two coordinates.
+ *
+ * @param aLat - Latitude of point A in degrees.
+ * @param aLng - Longitude of point A in degrees.
+ * @param bLat - Latitude of point B in degrees.
+ * @param bLng - Longitude of point B in degrees.
+ * @returns The distance in kilometers.
+ */
 export function distance(
     aLat: number,
     aLng: number,
@@ -73,6 +108,13 @@ export function distance(
     return nativeGeohash.symbols.rk_geohash_distance(aLat, aLng, bLat, bLng);
 }
 
+/**
+ * Checks whether a string is a valid geohash.
+ *
+ * @param hash - String to validate.
+ * @returns `true` if `hash` uses only geohash characters and has a valid
+ * length, `false` otherwise.
+ */
 export function isValid(hash: string): boolean {
     const encoder = new TextEncoder();
     const hashBytes = encoder.encode(hash);
@@ -83,6 +125,13 @@ export function isValid(hash: string): boolean {
     );
 }
 
+/**
+ * Returns all 8 neighboring geohashes of a cell.
+ *
+ * @param hash - Source geohash.
+ * @returns An array of 8 geohashes, same length as `hash`, in compass
+ * order (N, NE, E, SE, S, SW, W, NW).
+ */
 export function allNeighbors(hash: string): string[] {
     const encoder = new TextEncoder();
     const hashBytes = encoder.encode(hash);
@@ -105,6 +154,12 @@ export function allNeighbors(hash: string): string[] {
     return neighbors;
 }
 
+/**
+ * Computes the bounding box of a geohash cell.
+ *
+ * @param hash - Geohash string.
+ * @returns The cell bounds `{ minLat, minLng, maxLat, maxLng }` in degrees.
+ */
 export function bbox(hash: string): { minLat: number; minLng: number; maxLat: number; maxLng: number } {
     const encoder = new TextEncoder();
     const hashBytes = encoder.encode(hash);

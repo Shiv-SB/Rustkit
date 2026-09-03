@@ -1,5 +1,18 @@
 import { nativeMatrix, ptr } from "../native";
 
+/**
+ * Multiplies two row-major matrices with explicit dimensions.
+ *
+ * @param a - First matrix (rowsA x colsA).
+ * @param b - Second matrix (colsA x colsB).
+ * @param rowsA - Number of rows in `a`.
+ * @param colsA - Number of columns in `a` / rows in `b`.
+ * @param colsB - Number of columns in `b`.
+ * @returns A new Float32Array of length `rowsA * colsB` containing
+ * the product.
+ * @throws {Error} If the flattened lengths of `a` or `b` do not match
+ * the given dimensions.
+ */
 export function mul(
     a: Float32Array,
     b: Float32Array,
@@ -28,6 +41,15 @@ export function mul(
     return out;
 }
 
+/**
+ * Transposes a row-major matrix.
+ *
+ * @param a - Input matrix (rows x cols).
+ * @param rows - Number of rows.
+ * @param cols - Number of columns.
+ * @returns A new Float32Array containing the transposed matrix.
+ * @throws {Error} If `a.length` does not equal `rows * cols`.
+ */
 export function transpose(
     a: Float32Array,
     rows: number,
@@ -49,6 +71,14 @@ export function transpose(
     return out;
 }
 
+/**
+ * Computes the determinant of a square matrix.
+ *
+ * @param a - Input matrix (n x n).
+ * @param n - Matrix dimension.
+ * @returns The determinant.
+ * @throws {Error} If `a` is not an `n x n` square matrix.
+ */
 export function determinant(
     a: Float32Array,
     n: number
@@ -63,6 +93,14 @@ export function determinant(
     );
 }
 
+/**
+ * Computes the inverse of a square matrix.
+ *
+ * @param a - Input matrix (n x n).
+ * @param n - Matrix dimension.
+ * @returns A new Float32Array containing the inverse.
+ * @throws {Error} If `a` is not an `n x n` square matrix or is singular.
+ */
 export function inverse(
     a: Float32Array,
     n: number
@@ -86,6 +124,16 @@ export function inverse(
     return out;
 }
 
+/**
+ * Adds two matrices element-wise.
+ *
+ * @param a - First matrix (rows x cols).
+ * @param b - Second matrix (rows x cols).
+ * @param rows - Number of rows.
+ * @param cols - Number of columns.
+ * @returns A new Float32Array containing the element-wise sum.
+ * @throws {Error} If either matrix length does not equal `rows * cols`.
+ */
 export function add(
     a: Float32Array,
     b: Float32Array,
@@ -109,6 +157,16 @@ export function add(
     return out;
 }
 
+/**
+ * Subtracts two matrices element-wise.
+ *
+ * @param a - First matrix (rows x cols).
+ * @param b - Second matrix (rows x cols).
+ * @param rows - Number of rows.
+ * @param cols - Number of columns.
+ * @returns A new Float32Array containing `a[i] - b[i]` for each element.
+ * @throws {Error} If either matrix length does not equal `rows * cols`.
+ */
 export function sub(
     a: Float32Array,
     b: Float32Array,
@@ -132,6 +190,14 @@ export function sub(
     return out;
 }
 
+/**
+ * Computes the trace (sum of the diagonal elements) of a square matrix.
+ *
+ * @param a - Input matrix (n x n).
+ * @param n - Matrix dimension.
+ * @returns The trace `sum(a[i * n + i])`.
+ * @throws {Error} If `a` is not an `n x n` square matrix.
+ */
 export function trace(
     a: Float32Array,
     n: number
@@ -146,6 +212,13 @@ export function trace(
     );
 }
 
+/**
+ * Creates an `n x n` identity matrix.
+ *
+ * @param n - Matrix dimension, a positive integer.
+ * @returns A new Float32Array with 1s on the diagonal and 0s elsewhere.
+ * @throws {Error} If `n` is not a positive integer.
+ */
 export function eye(
     n: number
 ): Float32Array {
@@ -163,6 +236,16 @@ export function eye(
     return out;
 }
 
+/**
+ * Multiplies every element of a matrix by a scalar.
+ *
+ * @param a - Input matrix (rows x cols).
+ * @param scalar - Scalar multiplier.
+ * @param rows - Number of rows.
+ * @param cols - Number of columns.
+ * @returns A new Float32Array containing `a[i] * scalar` for each element.
+ * @throws {Error} If `a.length` does not equal `rows * cols`.
+ */
 export function scale(
     a: Float32Array,
     scalar: number,
@@ -186,6 +269,16 @@ export function scale(
     return out;
 }
 
+/**
+ * Computes the Hadamard (element-wise) product of two matrices.
+ *
+ * @param a - First matrix (rows x cols).
+ * @param b - Second matrix (rows x cols).
+ * @param rows - Number of rows.
+ * @param cols - Number of columns.
+ * @returns A new Float32Array containing `a[i] * b[i]` for each element.
+ * @throws {Error} If either matrix length does not equal `rows * cols`.
+ */
 export function hadamard(
     a: Float32Array,
     b: Float32Array,
@@ -209,6 +302,15 @@ export function hadamard(
     return out;
 }
 
+/**
+ * Computes the Frobenius norm of a matrix: `sqrt(sum(a[i]^2))`.
+ *
+ * @param a - Input matrix (rows x cols).
+ * @param rows - Number of rows.
+ * @param cols - Number of columns.
+ * @returns The Frobenius norm.
+ * @throws {Error} If `a.length` does not equal `rows * cols`.
+ */
 export function frobeniusNorm(
     a: Float32Array,
     rows: number,
@@ -225,6 +327,16 @@ export function frobeniusNorm(
     );
 }
 
+/**
+ * Computes the LU decomposition of a square matrix.
+ *
+ * @param a - Input matrix (n x n).
+ * @param n - Matrix dimension.
+ * @returns The lower and upper triangular factors `{ l, u }`, each an
+ * `n x n` Float32Array.
+ * @throws {Error} If `a` is not an `n x n` square matrix or cannot be
+ * decomposed.
+ */
 export function luDecompose(
     a: Float32Array,
     n: number
@@ -250,6 +362,17 @@ export function luDecompose(
     return { l, u };
 }
 
+/**
+ * Computes the Cholesky decomposition of a symmetric positive-definite
+ * matrix.
+ *
+ * @param a - Input matrix (n x n).
+ * @param n - Matrix dimension.
+ * @returns A new Float32Array containing the lower triangular factor `L`
+ * such that `a = L * L^T`.
+ * @throws {Error} If `a` is not an `n x n` square matrix or is not
+ * positive-definite.
+ */
 export function cholesky(
     a: Float32Array,
     n: number
@@ -273,6 +396,15 @@ export function cholesky(
     return out;
 }
 
+/**
+ * Computes the eigenvalues of a square matrix.
+ *
+ * @param a - Input matrix (n x n).
+ * @param n - Matrix dimension.
+ * @returns A new Float32Array of length `n` containing the eigenvalues.
+ * @throws {Error} If `a` is not an `n x n` square matrix or the
+ * computation fails to converge.
+ */
 export function eigenvalues(
     a: Float32Array,
     n: number

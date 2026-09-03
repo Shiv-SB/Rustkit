@@ -6,8 +6,13 @@ import { nativeConfig, ptr, resolvedPlatform, resolvedBinaryPath } from "../nati
  * the FFI side returns this index for the user-facing backend name.
  */
 export const SIMD_NAMES = ["scalar", "neon", "avx2", "sse2"] as const;
+
+/** The active SIMD backend for hot reductions. */
 export type SimdBackend = (typeof SIMD_NAMES)[number];
 
+/**
+ * Read-only runtime configuration for the Rustkit library.
+ */
 export interface RustkitConfig {
     /** The version of the Rustkit library, sourced from the native binary. */
     readonly version: string;

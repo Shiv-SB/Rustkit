@@ -8,6 +8,14 @@ function ffiPtr(bytes: Uint8Array) {
     return bytes.length === 0 ? ptr(EMPTY) : ptr(bytes);
 }
 
+/**
+ * Computes the Levenshtein edit distance between two strings.
+ *
+ * @param a - First string.
+ * @param b - Second string.
+ * @returns The minimum number of insertions, deletions, and substitutions
+ * needed to turn `a` into `b`.
+ */
 export function levenshtein(a: string, b: string): number {
     const encoder = new TextEncoder();
 
@@ -22,6 +30,15 @@ export function levenshtein(a: string, b: string): number {
     ));
 }
 
+/**
+ * Computes the Hamming distance between two equal-length strings (number
+ * of positions where the characters differ).
+ *
+ * @param a - First string.
+ * @param b - Second string.
+ * @returns The number of differing character positions.
+ * @throws {Error} If `a` and `b` have different lengths.
+ */
 export function hamming(a: string, b: string): number {
     const encoder = new TextEncoder();
 
@@ -40,6 +57,15 @@ export function hamming(a: string, b: string): number {
     ));
 }
 
+/**
+ * Fuzzy-matches `pattern` against `text`, returning the position of the
+ * best subsequence match.
+ *
+ * @param pattern - Pattern to search for.
+ * @param text - Text to search in.
+ * @returns The index where the best fuzzy match starts, or `null` if
+ * `pattern` does not occur as a subsequence.
+ */
 export function fuzzyMatch(
     pattern: string,
     text: string
@@ -62,6 +88,13 @@ export function fuzzyMatch(
     return found ? out[0]! : null;
 }
 
+/**
+ * Computes the length of the longest common subsequence of two strings.
+ *
+ * @param a - First string.
+ * @param b - Second string.
+ * @returns The LCS length.
+ */
 export function longestCommonSubseq(a: string, b: string): number {
     const encoder = new TextEncoder();
 
@@ -76,6 +109,13 @@ export function longestCommonSubseq(a: string, b: string): number {
     ));
 }
 
+/**
+ * Computes the length of the longest common substring of two strings.
+ *
+ * @param a - First string.
+ * @param b - Second string.
+ * @returns The length of the longest contiguous common substring.
+ */
 export function longestCommonSubstr(a: string, b: string): number {
     const encoder = new TextEncoder();
 
@@ -90,6 +130,14 @@ export function longestCommonSubstr(a: string, b: string): number {
     ));
 }
 
+/**
+ * Computes the Damerau-Levenshtein edit distance between two strings,
+ * which also allows transpositions of adjacent characters.
+ *
+ * @param a - First string.
+ * @param b - Second string.
+ * @returns The minimum edit distance.
+ */
 export function damerauLevenshtein(a: string, b: string): number {
     const encoder = new TextEncoder();
 
@@ -104,6 +152,13 @@ export function damerauLevenshtein(a: string, b: string): number {
     ));
 }
 
+/**
+ * Computes the Jaro-Winkler similarity between two strings.
+ *
+ * @param a - First string.
+ * @param b - Second string.
+ * @returns The similarity in `[0, 1]`, where 1 is an exact match.
+ */
 export function jaroWinkler(a: string, b: string): number {
     const encoder = new TextEncoder();
 
@@ -118,6 +173,14 @@ export function jaroWinkler(a: string, b: string): number {
     );
 }
 
+/**
+ * Computes the trigram similarity between two strings (fraction of shared
+ * character trigrams).
+ *
+ * @param a - First string.
+ * @param b - Second string.
+ * @returns The similarity in `[0, 1]`.
+ */
 export function trigramSimilarity(a: string, b: string): number {
     const encoder = new TextEncoder();
 
@@ -132,6 +195,14 @@ export function trigramSimilarity(a: string, b: string): number {
     );
 }
 
+/**
+ * Computes the Soundex code of a name: a letter followed by three digits.
+ *
+ * @param input - Name to encode, ASCII alphabetic characters only.
+ * @returns The 4-character Soundex code.
+ * @throws {Error} If `input` is empty or contains non-ASCII-alphabetic
+ * characters.
+ */
 export function soundex(input: string): string {
     if (input.length === 0) {
         throw new Error("Input must not be empty");

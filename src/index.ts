@@ -16,4 +16,9 @@ export * as eval from "./packages/eval";
 // package.json, Bun's bundler tree-shakes a pure re-export entry into a
 // broken stub (exports referencing undefined bindings).
 import { config as _config } from "./packages/config";
+
+/**
+ * Read-only runtime configuration for the Rustkit library (see
+ * `src/packages/config.ts` for the full interface).
+ */
 export const config = _config;

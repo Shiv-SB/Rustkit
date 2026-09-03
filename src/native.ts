@@ -8,6 +8,18 @@ function isMusl(): boolean {
     return existsSync(`/lib/ld-musl-${arch}.so.1`);
 }
 
+/**
+ * Returns the platform binary directory keys to try, in order, for the
+ * given platform/arch/musl combination.
+ *
+ * On Linux, the preferred libc variant (per `musl`) is tried first, then
+ * the other; on other platforms only `${platform}-${arch}` is returned.
+ *
+ * @param platform - Node.js platform name (e.g. "darwin", "linux").
+ * @param arch - Node.js architecture name (e.g. "arm64", "x64").
+ * @param musl - Whether the Linux target uses musl.
+ * @returns The candidate platform keys in priority order.
+ */
 export function platformCandidates(platform: string, arch: string, musl: boolean): string[] {
     if (platform === "linux") {
         const first = musl ? "musl" : "gnu";
