@@ -1,124 +1,208 @@
-import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, copyFileSync } from "node:fs";
-import { join } from "node:path";
-import { Effect, FileSystem, Option, Result, Stream } from "effect"
+import { Effect, FileSystem, Option, Path, flow } from "effect";
+import { ChildProcess } from "effect/unstable/process";
+import { layers } from "./common";
+import { BunRuntime } from "@effect/platform-bun";
 
-const root = join(import.meta.dir, "..");
+//#region Types
 
-interface PlatformTarget {
-    ext: "dylib" | "so";
-    rustupTarget: string;
-    rustflags?: string;
-    build: string[];
-    artifact: string;
+type Ext = "dylib" | "so";
+
+type RustupTarget =
+    | "aarch64-apple-darwin"
+    | "x86_64-apple-darwin"
+    | "x86_64-unknown-linux-gnu"
+    | "aarch64-unknown-linux-gnu"
+    | "x86_64-unknown-linux-musl"
+    | "aarch64-unknown-linux-musl";
+
+type Build<Target extends RustupTarget> = [
+    "cargo",
+    "zigbuild",
+    "--release",
+    "-p",
+    "rustkit-ffi",
+    "--target",
+    Target,
+];
+
+type Artifact<Target extends RustupTarget, E extends Ext> = [
+    "target",
+    Target,
+    "release",
+    `librustkit_ffi.${E}`,
+];
+
+interface PlatformTarget<E extends Ext, R extends RustupTarget> {
+    ext: E;
+    rustupTarget: R;
+    rustFlags?: string;
+    build: Build<R>;
+    artifact: Artifact<R, E>;
 }
 
-const TARGETS: Record<string, PlatformTarget> = {
-    "darwin-arm64": {
-        ext: "dylib",
-        rustupTarget: "aarch64-apple-darwin",
-        build: ["cargo", "zigbuild", "--release", "-p", "rustkit-ffi", "--target", "aarch64-apple-darwin"],
-        artifact: join("target", "aarch64-apple-darwin", "release", "librustkit_ffi.dylib"),
-    },
-    "darwin-x64": {
-        ext: "dylib",
-        rustupTarget: "x86_64-apple-darwin",
-        build: ["cargo", "zigbuild", "--release", "-p", "rustkit-ffi", "--target", "x86_64-apple-darwin"],
-        artifact: join("target", "x86_64-apple-darwin", "release", "librustkit_ffi.dylib"),
-    },
-    "linux-x64-gnu": {
-        ext: "so",
-        rustupTarget: "x86_64-unknown-linux-gnu",
-        build: ["cargo", "zigbuild", "--release", "-p", "rustkit-ffi", "--target", "x86_64-unknown-linux-gnu"],
-        artifact: join("target", "x86_64-unknown-linux-gnu", "release", "librustkit_ffi.so"),
-    },
-    "linux-arm64-gnu": {
-        ext: "so",
-        rustupTarget: "aarch64-unknown-linux-gnu",
-        build: ["cargo", "zigbuild", "--release", "-p", "rustkit-ffi", "--target", "aarch64-unknown-linux-gnu"],
-        artifact: join("target", "aarch64-unknown-linux-gnu", "release", "librustkit_ffi.so"),
-    },
-    "linux-x64-musl": {
-        ext: "so",
-        rustupTarget: "x86_64-unknown-linux-musl",
-        rustflags: "-C target-feature=-crt-static",
-        build: ["cargo", "zigbuild", "--release", "-p", "rustkit-ffi", "--target", "x86_64-unknown-linux-musl"],
-        artifact: join("target", "x86_64-unknown-linux-musl", "release", "librustkit_ffi.so"),
-    },
-    "linux-arm64-musl": {
-        ext: "so",
-        rustupTarget: "aarch64-unknown-linux-musl",
-        rustflags: "-C target-feature=-crt-static",
-        build: ["cargo", "zigbuild", "--release", "-p", "rustkit-ffi", "--target", "aarch64-unknown-linux-musl"],
-        artifact: join("target", "aarch64-unknown-linux-musl", "release", "librustkit_ffi.so"),
-    },
+type TargetMap = {
+    "darwin-arm64": PlatformTarget<"dylib", "aarch64-apple-darwin">;
+    "darwin-x64": PlatformTarget<"dylib", "x86_64-apple-darwin">;
+    "linux-x64-gnu": PlatformTarget<"so", "x86_64-unknown-linux-gnu">;
+    "linux-arm64-gnu": PlatformTarget<"so", "aarch64-unknown-linux-gnu">;
+    "linux-x64-musl": PlatformTarget<"so", "x86_64-unknown-linux-musl">;
+    "linux-arm64-musl": PlatformTarget<"so", "aarch64-unknown-linux-musl">;
 };
 
-const hasCommand = (cmd: string) => Effect.try(() => execSync(`command -v ${cmd}`, { stdio: "ignore" })).pipe(
-    Effect.result,
-    Effect.andThen((result) => Result.match(result, {
-        onSuccess: () => Effect.succeed(true),
-        onFailure: () => Effect.succeed(false),
-    }))
+type Target = keyof TargetMap;
+
+//#region Targets
+
+const makePlatformTarget = <E extends Ext, R extends RustupTarget>(
+    ext: E,
+    rustupTarget: R,
+    rustFlags?: string,
+): PlatformTarget<E, R> => ({
+    ext,
+    rustupTarget,
+    rustFlags,
+
+    build: [
+        "cargo",
+        "zigbuild",
+        "--release",
+        "-p",
+        "rustkit-ffi",
+        "--target",
+        rustupTarget,
+    ],
+
+    artifact: ["target", rustupTarget, "release", `librustkit_ffi.${ext}`],
+});
+
+const TARGETS: TargetMap = {
+    "darwin-arm64": makePlatformTarget("dylib", "aarch64-apple-darwin"),
+    "darwin-x64": makePlatformTarget("dylib", "x86_64-apple-darwin"),
+    "linux-x64-gnu": makePlatformTarget("so", "x86_64-unknown-linux-gnu"),
+    "linux-arm64-gnu": makePlatformTarget("so", "aarch64-unknown-linux-gnu"),
+    "linux-x64-musl": makePlatformTarget(
+        "so",
+        "x86_64-unknown-linux-musl",
+        "-C target-feature=-crt-static",
+    ),
+    "linux-arm64-musl": makePlatformTarget(
+        "so",
+        "aarch64-unknown-linux-musl",
+        "-C target-feature=-crt-static",
+    ),
+};
+
+//#region Utils
+
+const getRoot = Effect.service(Path.Path).pipe(
+    Effect.map((path) => path.join(import.meta.dir, ".."))
 );
 
+const hasCommand = Effect.fnUntraced(function* (cmd: string) {
+    const pipeline = yield* ChildProcess.make(`command -v ${cmd}`, {
+        stdout: "ignore",
+        stderr: "ignore",
+    });
+    const result = yield* pipeline.exitCode;
+
+    // 0 -> !0 -> true
+    // 1 -> !1 -> false
+    // 127 -> !127 -> false
+    return !result;
+}, flow(Effect.scoped));
+
 const Main = Effect.gen(function* () {
+    if (!(yield* hasCommand("cargo-zigbuild"))) {
+        return yield* Effect.die(
+            new Error(
+                `cargo-zigbuild not installed. Install with: 'cargo install cargo-zigbuild'`,
+            ),
+        );
+    }
+
     const onlyArg: number = process.argv.indexOf("--only");
-    const only: Option.Option<string> = onlyArg !== -1 
-        ? Option.some(process.argv[onlyArg + 1]!) 
-        : Option.none();
+    const only: Option.Option<string> =
+        onlyArg !== -1 ? Option.some(process.argv[onlyArg + 1]!) : Option.none();
 
     if (process.platform !== "darwin" || process.arch !== "arm64") {
-        return yield* Effect.die(new Error("build-platforms assumes a darwin-arm64 host; run per-platform builds manually elsewhere"));
+        return yield* Effect.die(
+            new Error(
+                "build-platforms assumes a darwin-arm64 host; run per-platform builds manually elsewhere",
+            ),
+        );
     }
 
     const keys = Option.match(only, {
         onSome: (str) => [str],
-        onNone: () => Object.keys(TARGETS)
-    });
+        onNone: () => Object.keys(TARGETS),
+    }) as Target[];
 
-    let failed = false;
-    
-    yield* Effect.forEach(keys, Effect.fnUntraced(function* () {
-        
-    }));
+    const path = yield* Path.Path;
+    const fs = yield* FileSystem.FileSystem;
+    const root = yield* getRoot;
+
+    const results = yield* Effect.forEach(
+        keys,
+        Effect.fnUntraced(function* (key) {
+            const target = TARGETS[key];
+
+            yield* Effect.log(`RUSTUP target add ${target.rustupTarget} ...`);
+            yield* ChildProcess.make(`rustup target add ${target.rustupTarget}`, {
+                cwd: root,
+                stderr: "inherit",
+                stdout: "inherit",
+            }).pipe(
+                Effect.andThen((proc) => proc.exitCode),
+                Effect.scoped,
+            );
+
+            yield* Effect.log(`BUILD ${key}`);
+            const env = target.rustFlags
+                ? { ...process.env, RUSTFLAGS: target.rustFlags }
+                : process.env;
+
+            yield* ChildProcess.make(target.build.join(""), {
+                cwd: root,
+                env,
+                stdout: "inherit",
+                stderr: "inherit",
+            }).pipe(
+                Effect.andThen((proc) => proc.exitCode),
+                Effect.scoped,
+            );
+
+            const artifact = path.join(root, ...target.artifact);
+            if (!(yield* fs.exists(artifact))) {
+                yield* Effect.logError(`${key} artifict missing at ${target.artifact}`);
+                return Option.some(new Error(`${key} artifict missing at ${target.artifact}`));
+            }
+
+            const destDir = path.join(root, "platforms", key);
+            yield* fs.makeDirectory(destDir, { recursive: true });
+            yield* fs.copyFile(artifact, path.join(destDir, `librustkit_ffi.${target.ext}`));
+            yield* Effect.log(`OK   ${key} -> platforms/${key}/librustkit_ffi.${target.ext}`);
+            return Option.none();
+        }),
+        { discard: false }
+    );
+
+    if (results.some((opt) => Option.isSome(opt))) {
+        yield* Effect.logFatal("Build completed with errors");
+
+        for (const result of results) {
+            if (Option.isNone(result)) continue;
+
+            const err = result.value;
+
+            yield* Effect.logError(err);
+        }
+
+        process.exitCode = 1;
+    }
 });
 
+Main.pipe(
+    Effect.provide(layers),
+    BunRuntime.runMain,
+)
 
-for (const key of keys) {
-    const target = TARGETS[key];
-    if (!target) {
-        console.error(`unknown platform key: ${key}`);
-        failed = true;
-        continue;
-    }
-
-    if (!hasCommand("cargo-zigbuild")) {
-        console.error(`FAIL ${key}: cargo-zigbuild not installed. Install with: brew install cargo-zigbuild (or cargo install cargo-zigbuild)`);
-        failed = true;
-        continue;
-    }
-
-    console.log(`RUSTUP target add ${target.rustupTarget} ...`);
-    execSync(`rustup target add ${target.rustupTarget}`, { cwd: root, stdio: "inherit" });
-
-    console.log(`BUILD ${key} ...`);
-    const env = target.rustflags ? { ...process.env, RUSTFLAGS: target.rustflags } : process.env;
-    execSync(target.build.join(" "), { cwd: root, stdio: "inherit", env });
-
-    const artifact = join(root, target.artifact);
-    if (!existsSync(artifact)) {
-        console.error(`FAIL ${key}: artifact missing at ${target.artifact}`);
-        failed = true;
-        continue;
-    }
-
-    const destDir = join(root, "platforms", key);
-    mkdirSync(destDir, { recursive: true });
-    copyFileSync(artifact, join(destDir, `librustkit_ffi.${target.ext}`));
-    console.log(`OK   ${key} -> platforms/${key}/librustkit_ffi.${target.ext}`);
-}
-
-if (failed) {
-    process.exit(1);
-}
