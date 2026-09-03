@@ -21,5 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - FFT: fft, ifft, rfft, irfft, convolve, powerSpectrum
 - Entropy: shannonEntropy, crossEntropy, klDivergence, mutualInformation
 - Quantize: quantizeInt8, dequantizeInt8, quantizeInt4, dequantizeInt4
+- Config: runtime introspection of library version, resolved platform, native binary path, and SIMD backend (version, platform, binaryPath, simd)
 - NEON SIMD kernels for hot reductions on Apple Silicon
 - npm packaging: platform binary resolver, dist bundling, multi-platform build scripts, release orchestrator

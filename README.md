@@ -226,6 +226,19 @@ const packed = quantize.quantizeInt4(new Float32Array([0.5, -0.5, 1, -1]));
 
 Also: `dequantizeInt4`.
 
+### config
+
+Runtime introspection: the loaded library's version, resolved platform, native binary path, and SIMD backend. Note that `config` is a named export, not a namespace.
+
+```ts
+import { config } from "rustkit";
+
+config.version;      // "0.1.0" — kept in sync with package.json and the Rust crates
+config.platform;     // "darwin-arm64"
+config.binaryPath;   // absolute path to the loaded librustkit_ffi binary
+config.simd;         // "neon" | "scalar" | "avx2" | "sse2"
+```
+
 ## Supported platforms
 
 | Platform | Binary |
@@ -327,7 +340,7 @@ The pipeline runs, in order:
 3. `verify:platforms` — hard-fail if any platform binary is missing (dry-run warns instead)
 4. `bun test` — full TS suite
 5. `build` — bundle `dist/`
-6. `smoke` — pack the tarball, install it in a temp Bun project, exercise all 12 modules
+6. `smoke` — pack the tarball, install it in a temp Bun project, exercise all 13 modules
 7. `npm publish` — only with `--publish`
 
 Always run the dry-run first and inspect the output before shipping. The smoke step verifies the actual tarball, not the working tree.
