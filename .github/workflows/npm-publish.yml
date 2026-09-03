@@ -1,0 +1,88 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  id-token: write # Required for OIDC (npm provenance + trusted publishing)
+  contents: write # Required to create the GitHub release for the tag
+
+jobs:
+  publish:
+    # build-platforms.ts requires a darwin-arm64 host: macos-14 is the arm64 runner.
+    # Do not switch to an x64 or Linux runner without loosening that check.
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js and npm
+        uses: actions/setup-node@v5
+
+      - name: Upgrade npm
+        run: sudo npm install -g npm@latest
+
+      - name: Show npm version
+        run: npm --version
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-zigbuild
+        # Cross-compiles the four Linux targets (glibc + musl, x64 + arm64) from macOS.
+        run: brew install cargo-zigbuild
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate package.json version matches tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          bun run sync:version
+          PACKAGE_VERSION=$(bun pm pkg get version | tr -d '"')
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Package version: $PACKAGE_VERSION"
+          echo "Tag version: $TAG_VERSION"
+          if [ "$PACKAGE_VERSION" != "$TAG_VERSION" ]; then
+            echo "Version mismatch: package.json has $PACKAGE_VERSION but tag is $TAG_VERSION."
+            echo "Bump crates/rustkit-ffi/Cargo.toml, run 'bun run sync:version', and tag v$PACKAGE_VERSION."
+            exit 1
+          fi
+          echo "Version matches: $PACKAGE_VERSION"
+
+      - name: Audit vulnerabilities
+        run: bun audit
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Build native library
+        run: bun run compile:rs
+
+      - name: Build all 6 platform binaries
+        run: bun run build:platforms
+
+      - name: Verify platform binaries
+        run: bun run verify:platforms
+
+      - name: Run tests
+        run: bun test
+
+      - name: Build dist
+        run: bun run build
+
+      - name: Smoke test packed tarball
+        run: bun run smoke
+
+      # Publishes via OIDC (no NPM_TOKEN required) and attaches npm provenance.
+      # Prerequisite: register this repo as a Trusted Publisher for the "rustkit"
+      # package on npmjs.com (Package > Access > Trusted Publishers > GitHub Actions).
+      - name: Publish to npm
+        run: npm publish --provenance --access public
