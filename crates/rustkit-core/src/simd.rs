@@ -113,6 +113,27 @@ pub fn max_abs_f32(a: &[f32]) -> f32 {
     }
 }
 
+pub fn max_f32(a: &[f32]) -> f32 {
+    #[cfg(target_arch = "aarch64")]
+    {
+        unsafe { max_f32_neon(a) }
+    }
+    #[cfg(target_arch = "x86_64")]
+    {
+        if std::arch::is_x86_feature_detected!("avx2") {
+            unsafe { max_f32_avx2(a) }
+        } else if std::arch::is_x86_feature_detected!("sse2") {
+            unsafe { max_f32_sse2(a) }
+        } else {
+            max_f32_scalar(a)
+        }
+    }
+    #[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]
+    {
+        max_f32_scalar(a)
+    }
+}
+
 // ---------------------------------------------------------------------------
 // AArch64 NEON kernels
 // ---------------------------------------------------------------------------
@@ -222,6 +243,25 @@ unsafe fn max_abs_f32_neon(a: &[f32]) -> f32 {
     let mut m = vmaxvq_f32(acc);
     while i < n {
         m = m.max(a[i].abs());
+        i += 1;
+    }
+    m
+}
+
+#[cfg(target_arch = "aarch64")]
+#[target_feature(enable = "neon")]
+unsafe fn max_f32_neon(a: &[f32]) -> f32 {
+    use std::arch::aarch64::*;
+    let n = a.len();
+    let mut i = 0;
+    let mut acc = vdupq_n_f32(f32::NEG_INFINITY);
+    while i + 4 <= n {
+        acc = vmaxq_f32(acc, unsafe { vld1q_f32(a.as_ptr().add(i)) });
+        i += 4;
+    }
+    let mut m = vmaxvq_f32(acc);
+    while i < n {
+        m = m.max(a[i]);
         i += 1;
     }
     m
@@ -394,6 +434,25 @@ unsafe fn max_abs_f32_avx2(a: &[f32]) -> f32 {
     m
 }
 
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx2")]
+unsafe fn max_f32_avx2(a: &[f32]) -> f32 {
+    use std::arch::x86_64::*;
+    let n = a.len();
+    let mut i = 0;
+    let mut acc = _mm256_set1_ps(f32::NEG_INFINITY);
+    while i + 8 <= n {
+        acc = _mm256_max_ps(acc, unsafe { _mm256_loadu_ps(a.as_ptr().add(i)) });
+        i += 8;
+    }
+    let mut m = unsafe { hmax256_avx2(acc) };
+    while i < n {
+        m = m.max(a[i]);
+        i += 1;
+    }
+    m
+}
+
 // ---------------------------------------------------------------------------
 // x86_64 SSE2 kernels — 2x unrolled 4-lane loads (8 elements per iteration),
 // scalar tail for remainders. SSE2 is the x86_64 baseline, so these run on
@@ -514,6 +573,25 @@ unsafe fn max_abs_f32_sse2(a: &[f32]) -> f32 {
     m
 }
 
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "sse2")]
+unsafe fn max_f32_sse2(a: &[f32]) -> f32 {
+    use std::arch::x86_64::*;
+    let n = a.len();
+    let mut i = 0;
+    let mut acc = _mm_set1_ps(f32::NEG_INFINITY);
+    while i + 4 <= n {
+        acc = _mm_max_ps(acc, unsafe { _mm_loadu_ps(a.as_ptr().add(i)) });
+        i += 4;
+    }
+    let mut m = unsafe { hmax128_sse2(acc) };
+    while i < n {
+        m = m.max(a[i]);
+        i += 1;
+    }
+    m
+}
+
 // ---------------------------------------------------------------------------
 // Scalar reference. Compiled on every target: it is the fallback for
 // non-NEON/non-x86_64 targets and for x86_64 CPUs without SSE2, and the
@@ -543,6 +621,11 @@ fn squared_diff_sum_f32_scalar(a: &[f32], b: &[f32]) -> f32 {
 #[allow(dead_code)]
 fn max_abs_f32_scalar(a: &[f32]) -> f32 {
     a.iter().map(|x| x.abs()).fold(0.0, f32::max)
+}
+
+#[allow(dead_code)]
+fn max_f32_scalar(a: &[f32]) -> f32 {
+    a.iter().copied().fold(f32::NEG_INFINITY, f32::max)
 }
 
 #[cfg(test)]
@@ -604,6 +687,11 @@ mod tests {
                 max_abs_f32(&a),
                 max_abs_f32_scalar(&a),
                 "max_abs_f32 mismatch at n={n}"
+            );
+            assert_eq!(
+                max_f32(&a),
+                max_f32_scalar(&a),
+                "max_f32 mismatch at n={n}"
             );
         }
     }
@@ -676,6 +764,11 @@ mod tests {
                     max_abs_f32_scalar(&a),
                     "avx2 max_abs n={n}"
                 );
+                assert_eq!(
+                    unsafe { max_f32_avx2(&a) },
+                    max_f32_scalar(&a),
+                    "avx2 max n={n}"
+                );
             }
         }
 
@@ -708,6 +801,11 @@ mod tests {
                     unsafe { max_abs_f32_sse2(&a) },
                     max_abs_f32_scalar(&a),
                     "sse2 max_abs n={n}"
+                );
+                assert_eq!(
+                    unsafe { max_f32_sse2(&a) },
+                    max_f32_scalar(&a),
+                    "sse2 max n={n}"
                 );
             }
         }

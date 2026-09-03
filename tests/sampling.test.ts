@@ -223,12 +223,12 @@ describe("sampling.categorical", () => {
         const idx = sampling.categorical(new Float32Array([0.5, 0.5]), 42);
         expect(idx).toBeGreaterThanOrEqual(0);
         expect(idx).toBeLessThan(2);
-    }, { repeats: 100 });
+    }, { repeats: 1_000 });
 
     test("should be deterministic for the same seed", () => {
         const probs = new Float32Array([0.5, 0.3, 0.2]);
         expect(sampling.categorical(probs, 7)).toBe(sampling.categorical(probs, 7));
-    }, { repeats: 100 });
+    }, { repeats: 1_000 });
 
     test("should throw on empty input", () => {
         expect(() => sampling.categorical(new Float32Array([]), 1)).toThrow("Vector must not be empty");

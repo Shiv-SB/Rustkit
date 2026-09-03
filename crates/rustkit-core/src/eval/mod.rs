@@ -4,6 +4,8 @@ pub mod rouge_l;
 pub mod token_f1;
 pub mod exact_match;
 
+mod tokens;
+
 pub use perplexity::perplexity_f32;
 pub use bleu::bleu;
 pub use rouge_l::rouge_l;
