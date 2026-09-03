@@ -10,6 +10,8 @@ export * as distance from "./packages/distance";
 export * as fft from "./packages/fft";
 export * as entropy from "./packages/entropy";
 export * as quantize from "./packages/quantize";
+export * as sampling from "./packages/sampling";
+export * as eval from "./packages/eval";
 // Real binding, not `export { config } from`: with "sideEffects": false in
 // package.json, Bun's bundler tree-shakes a pure re-export entry into a
 // broken stub (exports referencing undefined bindings).

@@ -10,4 +10,6 @@ pub mod distance;
 pub mod fft;
 pub mod entropy;
 pub mod quantize;
+pub mod sampling;
+pub mod eval;
 pub mod config;

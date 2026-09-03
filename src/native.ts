@@ -554,6 +554,68 @@ const nativeQuantize = dlopen(LIB, {
     },
 });
 
+const nativeSampling = dlopen(LIB, {
+    rk_sampling_softmax_f32: {
+        args: ["ptr", "u64"],
+        returns: "void",
+    },
+    rk_sampling_log_softmax_f32: {
+        args: ["ptr", "u64"],
+        returns: "void",
+    },
+    rk_sampling_temperature_f32: {
+        args: ["ptr", "float", "u64"],
+        returns: "void",
+    },
+    rk_sampling_top_k_f32: {
+        args: ["ptr", "u64", "u64"],
+        returns: "void",
+    },
+    rk_sampling_top_p_f32: {
+        args: ["ptr", "float", "u64"],
+        returns: "void",
+    },
+    rk_sampling_min_p_f32: {
+        args: ["ptr", "float", "u64"],
+        returns: "void",
+    },
+    rk_sampling_repetition_penalty_f32: {
+        args: ["ptr", "u64", "float", "ptr", "u64"],
+        returns: "void",
+    },
+    rk_sampling_categorical_f32: {
+        args: ["ptr", "u64", "u64"],
+        returns: "u64",
+    },
+    rk_sampling_greedy_f32: {
+        args: ["ptr", "u64"],
+        returns: "u64",
+    },
+});
+
+const nativeEval = dlopen(LIB, {
+    rk_eval_perplexity_f32: {
+        args: ["ptr", "u64"],
+        returns: "float",
+    },
+    rk_eval_bleu: {
+        args: ["ptr", "u64", "ptr", "u64", "u64"],
+        returns: "float",
+    },
+    rk_eval_rouge_l: {
+        args: ["ptr", "u64", "ptr", "u64"],
+        returns: "float",
+    },
+    rk_eval_token_f1_i32: {
+        args: ["ptr", "u64", "ptr", "u64"],
+        returns: "float",
+    },
+    rk_eval_exact_match: {
+        args: ["ptr", "u64", "ptr", "u64"],
+        returns: "bool",
+    },
+});
+
 const nativeConfig = dlopen(LIB, {
     rk_config_version: {
         args: ["ptr", "u64"],
@@ -578,6 +640,8 @@ export {
     nativeFft,
     nativeEntropy,
     nativeQuantize,
+    nativeSampling,
+    nativeEval,
     nativeConfig,
     resolvedPlatform,
     resolvedBinaryPath,
