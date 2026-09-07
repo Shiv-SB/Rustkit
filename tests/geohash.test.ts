@@ -4,7 +4,7 @@ import { geohash } from "../src/index";
 describe("geohash.encode", () => {
     test("should encode a coordinate", () => {
         const hash = geohash.encode(48.8566, 2.3522, 5);
-        expect(typeof hash).toBe("string");
+        expect(hash).toBeString();
         expect(hash.length).toBe(5);
     });
 
@@ -17,7 +17,7 @@ describe("geohash.encode", () => {
 
     test("should encode known location", () => {
         const hash = geohash.encode(0, 0, 5);
-        expect(typeof hash).toBe("string");
+        expect(hash).toBeString();
         expect(hash.length).toBe(5);
     });
 
@@ -28,15 +28,15 @@ describe("geohash.encode", () => {
     });
 
     test("should throw on precision 0", () => {
-        expect(() => geohash.encode(48.8566, 2.3522, 0)).toThrow("Precision must be an integer between 1 and 12");
+        expect(() => geohash.encode(48.8566, 2.3522, 0)).toThrowError("Precision must be an integer between 1 and 12");
     });
 
     test("should throw on precision above 12", () => {
-        expect(() => geohash.encode(48.8566, 2.3522, 13)).toThrow("Precision must be an integer between 1 and 12");
+        expect(() => geohash.encode(48.8566, 2.3522, 13)).toThrowError("Precision must be an integer between 1 and 12");
     });
 
     test("should throw on non-integer precision", () => {
-        expect(() => geohash.encode(48.8566, 2.3522, 5.5)).toThrow("Precision must be an integer between 1 and 12");
+        expect(() => geohash.encode(48.8566, 2.3522, 5.5)).toThrowError("Precision must be an integer between 1 and 12");
     });
 });
 
@@ -49,8 +49,8 @@ describe("geohash.decode", () => {
 
     test("should decode single character hash", () => {
         const result = geohash.decode("s");
-        expect(typeof result.lat).toBe("number");
-        expect(typeof result.lng).toBe("number");
+        expect(result.lat).toBeNumber();
+        expect(result.lng).toBeNumber();
     });
 
     test("should round-trip encode/decode", () => {
@@ -67,7 +67,7 @@ describe("geohash.neighbor", () => {
     test("should find north neighbor", () => {
         const hash = geohash.encode(48.8566, 2.3522, 6);
         const north = geohash.neighbor(hash, 0);
-        expect(typeof north).toBe("string");
+        expect(north).toBeString();
         expect(north.length).toBe(hash.length);
         expect(north).not.toBe(hash);
     });
@@ -75,7 +75,7 @@ describe("geohash.neighbor", () => {
     test("should find south neighbor", () => {
         const hash = geohash.encode(48.8566, 2.3522, 6);
         const south = geohash.neighbor(hash, 1);
-        expect(typeof south).toBe("string");
+        expect(south).toBeString();
         expect(south.length).toBe(hash.length);
         expect(south).not.toBe(hash);
     });
@@ -83,7 +83,7 @@ describe("geohash.neighbor", () => {
     test("should find east neighbor", () => {
         const hash = geohash.encode(48.8566, 2.3522, 6);
         const east = geohash.neighbor(hash, 2);
-        expect(typeof east).toBe("string");
+        expect(east).toBeString();
         expect(east.length).toBe(hash.length);
         expect(east).not.toBe(hash);
     });
@@ -91,30 +91,30 @@ describe("geohash.neighbor", () => {
     test("should find west neighbor", () => {
         const hash = geohash.encode(48.8566, 2.3522, 6);
         const west = geohash.neighbor(hash, 3);
-        expect(typeof west).toBe("string");
+        expect(west).toBeString();
         expect(west.length).toBe(hash.length);
         expect(west).not.toBe(hash);
     });
 
     test("should throw on direction below 0", () => {
         const hash = geohash.encode(48.8566, 2.3522, 6);
-        expect(() => geohash.neighbor(hash, -1)).toThrow("Direction must be an integer between 0 and 7");
+        expect(() => geohash.neighbor(hash, -1)).toThrowError("Direction must be an integer between 0 and 7");
     });
 
     test("should throw on direction above 7", () => {
         const hash = geohash.encode(48.8566, 2.3522, 6);
-        expect(() => geohash.neighbor(hash, 8)).toThrow("Direction must be an integer between 0 and 7");
+        expect(() => geohash.neighbor(hash, 8)).toThrowError("Direction must be an integer between 0 and 7");
     });
 
     test("should throw on non-integer direction", () => {
         const hash = geohash.encode(48.8566, 2.3522, 6);
-        expect(() => geohash.neighbor(hash, 1.5)).toThrow("Direction must be an integer between 0 and 7");
+        expect(() => geohash.neighbor(hash, 1.5)).toThrowError("Direction must be an integer between 0 and 7");
     });
 });
 
 describe("geohash.distance", () => {
     test("should return 0 for same point", () => {
-        expect(geohash.distance(48.8566, 2.3522, 48.8566, 2.3522)).toBeCloseTo(0, 4);
+        expect(geohash.distance(48.8566, 2.3522, 48.8566, 2.3522)).toBe(0);
     });
 
     test("should compute distance between two points", () => {
@@ -125,7 +125,7 @@ describe("geohash.distance", () => {
     test("should be symmetric", () => {
         const d1 = geohash.distance(48.8566, 2.3522, 52.5200, 13.4050);
         const d2 = geohash.distance(52.5200, 13.4050, 48.8566, 2.3522);
-        expect(d1).toBeCloseTo(d2, 4);
+        expect(d1).toBe(d2);
     });
 
     test("should return approximate km for known distance", () => {
@@ -137,19 +137,19 @@ describe("geohash.distance", () => {
 
 describe("geohash.isValid", () => {
     test("should return true for valid geohash", () => {
-        expect(geohash.isValid("u09tun")).toBe(true);
+        expect(geohash.isValid("u09tun")).toBeTrue();
     });
 
     test("should return true for single character", () => {
-        expect(geohash.isValid("s")).toBe(true);
+        expect(geohash.isValid("s")).toBeTrue();
     });
 
     test("should return false for invalid characters", () => {
-        expect(geohash.isValid("abc!@#")).toBe(false);
+        expect(geohash.isValid("abc!@#")).toBeFalse();
     });
 
     test("should return false for empty string", () => {
-        expect(geohash.isValid("")).toBe(false);
+        expect(geohash.isValid("")).toBeFalse();
     });
 });
 
@@ -178,10 +178,10 @@ describe("geohash.allNeighbors", () => {
 describe("geohash.bbox", () => {
     test("should return bounding box", () => {
         const result = geohash.bbox("u09tun");
-        expect(typeof result.minLat).toBe("number");
-        expect(typeof result.minLng).toBe("number");
-        expect(typeof result.maxLat).toBe("number");
-        expect(typeof result.maxLng).toBe("number");
+        expect(result.maxLat).toBeNumber();
+        expect(result.maxLng).toBeNumber();
+        expect(result.minLat).toBeNumber();
+        expect(result.minLng).toBeNumber();
     });
 
     test("should have min <= max", () => {
