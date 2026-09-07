@@ -5,18 +5,18 @@ describe("quantize.quantizeInt8", () => {
     test("should return quantized array and scale", () => {
         const result = quantize.quantizeInt8(new Float32Array([0.5, -0.5, 1.0, -1.0]));
         expect(result.quantized).toBeInstanceOf(Int8Array);
-        expect(result.quantized.length).toBe(4);
-        expect(typeof result.scale).toBe("number");
+        expect(result.quantized).toHaveLength(4);
+        expect(result.scale).toBeNumber();
     });
 
     test("should handle single element", () => {
         const result = quantize.quantizeInt8(new Float32Array([42]));
-        expect(result.quantized.length).toBe(1);
+        expect(result.quantized).toHaveLength(1);
         expect(result.scale).toBeGreaterThan(0);
     });
 
     test("should throw on empty input", () => {
-        expect(() => quantize.quantizeInt8(new Float32Array([]))).toThrow("Vector must not be empty");
+        expect(() => quantize.quantizeInt8(new Float32Array([]))).toThrowError("Vector must not be empty");
     });
 });
 
@@ -24,7 +24,7 @@ describe("quantize.dequantizeInt8", () => {
     test("should return Float32Array of same length", () => {
         const result = quantize.dequantizeInt8(new Int8Array([64, -64, 127, -127]), 0.01);
         expect(result).toBeInstanceOf(Float32Array);
-        expect(result.length).toBe(4);
+        expect(result).toHaveLength(4);
     });
 
     test("should approximately round-trip with quantizeInt8", () => {
@@ -37,7 +37,7 @@ describe("quantize.dequantizeInt8", () => {
     });
 
     test("should throw on empty input", () => {
-        expect(() => quantize.dequantizeInt8(new Int8Array([]), 0.01)).toThrow("Vector must not be empty");
+        expect(() => quantize.dequantizeInt8(new Int8Array([]), 0.01)).toThrowError("Vector must not be empty");
     });
 });
 
@@ -45,22 +45,22 @@ describe("quantize.quantizeInt4", () => {
     test("should return packed bytes and scale", () => {
         const result = quantize.quantizeInt4(new Float32Array([0.5, -0.5, 1.0, -1.0]));
         expect(result.quantized).toBeInstanceOf(Uint8Array);
-        expect(result.quantized.length).toBe(2); // ceil(4/2)
-        expect(typeof result.scale).toBe("number");
+        expect(result.quantized).toHaveLength(2); // ceil(4/2)
+        expect(result.scale).toBeNumber();
     });
 
     test("should handle odd length", () => {
         const result = quantize.quantizeInt4(new Float32Array([0.1, 0.2, 0.3]));
-        expect(result.quantized.length).toBe(2); // ceil(3/2)
+        expect(result.quantized).toHaveLength(2); // ceil(3/2)
     });
 
     test("should handle single element", () => {
         const result = quantize.quantizeInt4(new Float32Array([1.0]));
-        expect(result.quantized.length).toBe(1);
+        expect(result.quantized).toHaveLength(1);
     });
 
     test("should throw on empty input", () => {
-        expect(() => quantize.quantizeInt4(new Float32Array([]))).toThrow("Vector must not be empty");
+        expect(() => quantize.quantizeInt4(new Float32Array([]))).toThrowError("Vector must not be empty");
     });
 });
 
@@ -68,15 +68,19 @@ describe("quantize.dequantizeInt4", () => {
     test("should return Float32Array of specified length", () => {
         const result = quantize.dequantizeInt4(new Uint8Array([0xAB, 0xCD]), 0.1, 4);
         expect(result).toBeInstanceOf(Float32Array);
-        expect(result.length).toBe(4);
+        expect(result).toHaveLength(4);
     });
 
     test("should throw on negative length", () => {
-        expect(() => quantize.dequantizeInt4(new Uint8Array([0]), 0.1, -1)).toThrow("length must be a non-negative integer");
+        expect(
+            () => quantize.dequantizeInt4(new Uint8Array([0]), 0.1, -1))
+            .toThrowError("length must be a non-negative integer");
     });
 
     test("should throw on insufficient bytes", () => {
-        expect(() => quantize.dequantizeInt4(new Uint8Array([0]), 0.1, 4)).toThrow("quantized must have at least ceil(length / 2) bytes");
+        expect(
+            () => quantize.dequantizeInt4(new Uint8Array([0]), 0.1, 4)
+        ).toThrowError("quantized must have at least ceil(length / 2) bytes");
     });
 
     test("should approximately round-trip with quantizeInt4", () => {
