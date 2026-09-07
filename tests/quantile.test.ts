@@ -1,6 +1,5 @@
 import { describe, test, expect } from "bun:test";
 import { quantile } from "../src/index";
-import { randomInt } from "./utils";
 
 describe("quantile.TDigest", () => {
     test("should create TDigest with default max centroids", () => {
