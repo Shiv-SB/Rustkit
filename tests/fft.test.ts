@@ -17,7 +17,7 @@ describe("fft.fft", () => {
     });
 
     test("should throw on mismatched lengths", () => {
-        expect(() => fft.fft(new Float32Array([1, 2]), new Float32Array([1]))).toThrow("Vectors must have the same length");
+        expect(() => fft.fft(new Float32Array([1, 2]), new Float32Array([1]))).toThrowError("Vectors must have the same length");
     });
 });
 
@@ -36,15 +36,17 @@ describe("fft.ifft", () => {
     });
 
     test("should throw on mismatched lengths", () => {
-        expect(() => fft.ifft(new Float32Array([1]), new Float32Array([1, 2]))).toThrow("Vectors must have the same length");
+        expect(() => fft.ifft(new Float32Array([1]), new Float32Array([1, 2]))).toThrowError("Vectors must have the same length");
     });
 });
 
 describe("fft.rfft", () => {
     test("should return spectrum of length n/2+1", () => {
-        const result = fft.rfft(new Float32Array([1, 2, 3, 4, 5, 6, 7, 8]));
-        expect(result.real.length).toBe(5); // 8/2+1
-        expect(result.imag.length).toBe(5);
+        const data = new Float32Array([1, 2, 3, 4, 5, 6, 7, 8]);
+        const result = fft.rfft(data);
+        const expectedLen = (data.length / 2) + 1;
+        expect(result.real.length).toBe(expectedLen);
+        expect(result.imag.length).toBe(expectedLen);
     });
 
     test("should handle power-of-2 input", () => {
@@ -60,7 +62,7 @@ describe("fft.rfft", () => {
     });
 
     test("should throw on empty input", () => {
-        expect(() => fft.rfft(new Float32Array([]))).toThrow("Vector must not be empty");
+        expect(() => fft.rfft(new Float32Array([]))).toThrowError("Vector must not be empty");
     });
 });
 
@@ -73,11 +75,11 @@ describe("fft.irfft", () => {
     });
 
     test("should throw on mismatched lengths", () => {
-        expect(() => fft.irfft(new Float32Array([1, 2]), new Float32Array([1]))).toThrow("Vectors must have the same length");
+        expect(() => fft.irfft(new Float32Array([1, 2]), new Float32Array([1]))).toThrowError("Vectors must have the same length");
     });
 
     test("should throw on empty input", () => {
-        expect(() => fft.irfft(new Float32Array([]), new Float32Array([]))).toThrow("Vector must not be empty");
+        expect(() => fft.irfft(new Float32Array([]), new Float32Array([]))).toThrowError("Vector must not be empty");
     });
 });
 
@@ -109,6 +111,6 @@ describe("fft.powerSpectrum", () => {
     });
 
     test("should throw on empty input", () => {
-        expect(() => fft.powerSpectrum(new Float32Array([]))).toThrow("Vector must not be empty");
+        expect(() => fft.powerSpectrum(new Float32Array([]))).toThrowError("Vector must not be empty");
     });
 });
