@@ -53,7 +53,7 @@ describe("string.hamming", () => {
     });
 
     test("should throw on different lengths", () => {
-        expect(() => string.hamming("abc", "ab")).toThrow("Strings must have the same length");
+        expect(() => string.hamming("abc", "ab")).toThrowError("Strings must have the same length");
     });
 
     test("should handle empty strings", () => {
@@ -169,11 +169,11 @@ describe("string.damerauLevenshtein", () => {
 
 describe("string.jaroWinkler", () => {
     test("should return 1 for identical strings", () => {
-        expect(string.jaroWinkler("hello", "hello")).toBeCloseTo(1, 4);
+        expect(string.jaroWinkler("hello", "hello")).toBe(1);
     });
 
     test("should return 0 for completely different strings", () => {
-        expect(string.jaroWinkler("abc", "xyz")).toBeCloseTo(0, 4);
+        expect(string.jaroWinkler("abc", "xyz")).toBe(0);
     });
 
     test("should return value between 0 and 1", () => {
@@ -183,30 +183,30 @@ describe("string.jaroWinkler", () => {
     });
 
     test("should handle empty strings", () => {
-        expect(string.jaroWinkler("", "")).toBeCloseTo(1, 4);
+        expect(string.jaroWinkler("", "")).toBeCloseTo(1);
     });
 });
 
 describe("string.trigramSimilarity", () => {
     test("should return 1 for identical strings", () => {
-        expect(string.trigramSimilarity("hello", "hello")).toBeCloseTo(1, 4);
+        expect(string.trigramSimilarity("hello", "hello")).toBe(1);
     });
 
     test("should return 0 for completely different strings", () => {
-        expect(string.trigramSimilarity("abc", "xyz")).toBeCloseTo(0, 4);
+        expect(string.trigramSimilarity("abc", "xyz")).toBe(0);
     });
 
     test("should handle short strings", () => {
         const result = string.trigramSimilarity("a", "a");
-        expect(typeof result).toBe("number");
+        expect(result).toBe(1);
     });
 });
 
 describe("string.soundex", () => {
     test("should produce 4-character code", () => {
         const result = string.soundex("Robert");
-        expect(typeof result).toBe("string");
-        expect(result.length).toBe(4);
+        expect(result).toBeString();
+        expect(result).toHaveLength(4);
     });
 
     test("should produce same code for similar names", () => {
@@ -222,14 +222,14 @@ describe("string.soundex", () => {
     });
 
     test("should throw on empty input", () => {
-        expect(() => string.soundex("")).toThrow("Input must not be empty");
+        expect(() => string.soundex("")).toThrowError("Input must not be empty");
     });
 
     test("should throw on non-alphabetic input", () => {
-        expect(() => string.soundex("123")).toThrow("Input must contain only ASCII alphabetic characters");
+        expect(() => string.soundex("123")).toThrowError("Input must contain only ASCII alphabetic characters");
     });
 
     test("should throw on mixed alphanumeric input", () => {
-        expect(() => string.soundex("Robert1")).toThrow("Input must contain only ASCII alphabetic characters");
+        expect(() => string.soundex("Robert1")).toThrowError("Input must contain only ASCII alphabetic characters");
     });
 });
