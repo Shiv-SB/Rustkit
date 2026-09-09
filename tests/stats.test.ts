@@ -19,7 +19,7 @@ describe("stats.mean", () => {
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.mean(new Float32Array([]))).toThrow("Array must not be empty");
+        expect(() => stats.mean(new Float32Array([]))).toThrowError("Array must not be empty");
     });
 });
 
@@ -45,14 +45,14 @@ describe("stats.median", () => {
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.median(new Float32Array([]))).toThrow("Array must not be empty");
+        expect(() => stats.median(new Float32Array([]))).toThrowError("Array must not be empty");
     });
 });
 
 describe("stats.variance", () => {
     test("should compute variance", () => {
         const result = stats.variance(new Float32Array([1, 2, 3, 4, 5]));
-        expect(result).toBeCloseTo(2, 4);
+        expect(result).toBe(2);
     });
 
     test("should return 0 for identical values", () => {
@@ -60,11 +60,11 @@ describe("stats.variance", () => {
     });
 
     test("should compute variance of two elements", () => {
-        expect(stats.variance(new Float32Array([1, 3]))).toBeCloseTo(1, 4);
+        expect(stats.variance(new Float32Array([1, 3]))).toBe(1);
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.variance(new Float32Array([]))).toThrow("Array must not be empty");
+        expect(() => stats.variance(new Float32Array([]))).toThrowError("Array must not be empty");
     });
 });
 
@@ -79,34 +79,34 @@ describe("stats.stddev", () => {
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.stddev(new Float32Array([]))).toThrow("Array must not be empty");
+        expect(() => stats.stddev(new Float32Array([]))).toThrowError("Array must not be empty");
     });
 });
 
 describe("stats.percentile", () => {
     test("should compute 50th percentile (median)", () => {
         const result = stats.percentile(new Float32Array([1, 2, 3, 4, 5]), 50);
-        expect(result).toBeCloseTo(3, 4);
+        expect(result).toBe(3);
     });
 
     test("should compute 0th percentile", () => {
-        expect(stats.percentile(new Float32Array([3, 1, 2]), 0)).toBeCloseTo(1, 4);
+        expect(stats.percentile(new Float32Array([3, 1, 2]), 0)).toBe(1);
     });
 
     test("should compute 100th percentile", () => {
-        expect(stats.percentile(new Float32Array([3, 1, 2]), 100)).toBeCloseTo(3, 4);
+        expect(stats.percentile(new Float32Array([3, 1, 2]), 100)).toBe(3);
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.percentile(new Float32Array([]), 50)).toThrow("Array must not be empty");
+        expect(() => stats.percentile(new Float32Array([]), 50)).toThrowError("Array must not be empty");
     });
 
     test("should throw on percentile < 0", () => {
-        expect(() => stats.percentile(new Float32Array([1, 2, 3]), -1)).toThrow("Percentile must be between 0 and 100");
+        expect(() => stats.percentile(new Float32Array([1, 2, 3]), -1)).toThrowError("Percentile must be between 0 and 100");
     });
 
     test("should throw on percentile > 100", () => {
-        expect(() => stats.percentile(new Float32Array([1, 2, 3]), 101)).toThrow("Percentile must be between 0 and 100");
+        expect(() => stats.percentile(new Float32Array([1, 2, 3]), 101)).toThrowError("Percentile must be between 0 and 100");
     });
 });
 
@@ -128,13 +128,13 @@ describe("stats.covariance", () => {
     test("should throw on mismatched lengths", () => {
         const a = new Float32Array([1, 2, 3]);
         const b = new Float32Array([1, 2]);
-        expect(() => stats.covariance(a, b)).toThrow("Arrays must have the same length");
+        expect(() => stats.covariance(a, b)).toThrowError("Arrays must have the same length");
     });
 
     test("should throw on empty arrays", () => {
         const a = new Float32Array([]);
         const b = new Float32Array([]);
-        expect(() => stats.covariance(a, b)).toThrow("Arrays must not be empty");
+        expect(() => stats.covariance(a, b)).toThrowError("Arrays must not be empty");
     });
 });
 
@@ -154,13 +154,13 @@ describe("stats.correlation", () => {
     test("should throw on mismatched lengths", () => {
         const a = new Float32Array([1, 2]);
         const b = new Float32Array([1]);
-        expect(() => stats.correlation(a, b)).toThrow("Arrays must have the same length");
+        expect(() => stats.correlation(a, b)).toThrowError("Arrays must have the same length");
     });
 
     test("should throw on empty arrays", () => {
         const a = new Float32Array([]);
         const b = new Float32Array([]);
-        expect(() => stats.correlation(a, b)).toThrow("Arrays must not be empty");
+        expect(() => stats.correlation(a, b)).toThrowError("Arrays must not be empty");
     });
 });
 
@@ -168,7 +168,7 @@ describe("stats.zscore", () => {
     test("should compute z-scores", () => {
         const result = stats.zscore(new Float32Array([1, 2, 3, 4, 5]));
         const mean = result.reduce((s, v) => s + v, 0) / result.length;
-        expect(mean).toBeCloseTo(0, 4);
+        expect(mean).toBe(0);
     });
 
     test("should return zeros for identical values", () => {
@@ -178,7 +178,7 @@ describe("stats.zscore", () => {
 
     test("should return single z-score of 0", () => {
         const result = stats.zscore(new Float32Array([42]));
-        expect(result[0]).toBeCloseTo(0, 4);
+        expect(result[0]).toBe(0);
     });
 
     test("should not mutate original", () => {
@@ -188,7 +188,7 @@ describe("stats.zscore", () => {
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.zscore(new Float32Array([]))).toThrow("Array must not be empty");
+        expect(() => stats.zscore(new Float32Array([]))).toThrowError("Array must not be empty");
     });
 });
 
@@ -196,14 +196,14 @@ describe("stats.histogram", () => {
     test("should count elements in bins", () => {
         const a = new Float32Array([1, 2, 3, 4, 5]);
         const result = stats.histogram(a, 5);
-        expect(result.length).toBe(5);
+        expect(result).toHaveLength(5);
         expect(result.reduce((s, v) => s + v, 0)).toBe(5);
     });
 
     test("should return single bin for all elements", () => {
         const a = new Float32Array([1, 2, 3]);
         const result = stats.histogram(a, 1);
-        expect(result.length).toBe(1);
+        expect(result).toHaveLength(1);
         expect(result[0]).toBe(3);
     });
 
@@ -214,38 +214,38 @@ describe("stats.histogram", () => {
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.histogram(new Float32Array([]), 3)).toThrow("Array must not be empty");
+        expect(() => stats.histogram(new Float32Array([]), 3)).toThrowError("Array must not be empty");
     });
 
     test("should throw on zero bins", () => {
-        expect(() => stats.histogram(new Float32Array([1, 2]), 0)).toThrow("Bins must be greater than 0");
+        expect(() => stats.histogram(new Float32Array([1, 2]), 0)).toThrowError("Bins must be greater than 0");
     });
 });
 
 describe("stats.quantile", () => {
     test("should compute 0.5 quantile (median)", () => {
         const result = stats.quantile(new Float32Array([1, 2, 3, 4, 5]), 0.5);
-        expect(result).toBeCloseTo(3, 4);
+        expect(result).toBe(3);
     });
 
     test("should compute 0 quantile", () => {
-        expect(stats.quantile(new Float32Array([3, 1, 2]), 0)).toBeCloseTo(1, 4);
+        expect(stats.quantile(new Float32Array([3, 1, 2]), 0)).toBe(1);
     });
 
     test("should compute 1 quantile", () => {
-        expect(stats.quantile(new Float32Array([3, 1, 2]), 1)).toBeCloseTo(3, 4);
+        expect(stats.quantile(new Float32Array([3, 1, 2]), 1)).toBe(3);
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.quantile(new Float32Array([]), 0.5)).toThrow("Array must not be empty");
+        expect(() => stats.quantile(new Float32Array([]), 0.5)).toThrowError("Array must not be empty");
     });
 
     test("should throw on quantile < 0", () => {
-        expect(() => stats.quantile(new Float32Array([1, 2]), -0.1)).toThrow("Quantile must be between 0 and 1");
+        expect(() => stats.quantile(new Float32Array([1, 2]), -0.1)).toThrowError("Quantile must be between 0 and 1");
     });
 
     test("should throw on quantile > 1", () => {
-        expect(() => stats.quantile(new Float32Array([1, 2]), 1.1)).toThrow("Quantile must be between 0 and 1");
+        expect(() => stats.quantile(new Float32Array([1, 2]), 1.1)).toThrowError("Quantile must be between 0 and 1");
     });
 });
 
@@ -259,13 +259,13 @@ describe("stats.mode", () => {
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.mode(new Float32Array([]))).toThrow("Array must not be empty");
+        expect(() => stats.mode(new Float32Array([]))).toThrowError("Array must not be empty");
     });
 });
 
 describe("stats.skewness", () => {
     test("should return 0 for symmetric distribution", () => {
-        expect(stats.skewness(new Float32Array([1, 2, 3, 4, 5]))).toBeCloseTo(0, 4);
+        expect(stats.skewness(new Float32Array([1, 2, 3, 4, 5]))).toBe(0);
     });
 
     test("should return positive for right-skewed", () => {
@@ -273,24 +273,24 @@ describe("stats.skewness", () => {
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.skewness(new Float32Array([]))).toThrow("Array must not be empty");
+        expect(() => stats.skewness(new Float32Array([]))).toThrowError("Array must not be empty");
     });
 });
 
 describe("stats.kurtosis", () => {
     test("should compute kurtosis", () => {
         const result = stats.kurtosis(new Float32Array([1, 2, 3, 4, 5]));
-        expect(typeof result).toBe("number");
+        expect(result).toBeFinite();
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.kurtosis(new Float32Array([]))).toThrow("Array must not be empty");
+        expect(() => stats.kurtosis(new Float32Array([]))).toThrowError("Array must not be empty");
     });
 });
 
 describe("stats.geometricMean", () => {
     test("should compute geometric mean", () => {
-        expect(stats.geometricMean(new Float32Array([2, 8]))).toBeCloseTo(4, 4);
+        expect(stats.geometricMean(new Float32Array([2, 8]))).toBe(4);
     });
 
     test("should handle single element", () => {
@@ -298,7 +298,7 @@ describe("stats.geometricMean", () => {
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.geometricMean(new Float32Array([]))).toThrow("Array must not be empty");
+        expect(() => stats.geometricMean(new Float32Array([]))).toThrowError("Array must not be empty");
     });
 });
 
@@ -312,15 +312,21 @@ describe("stats.weightedMean", () => {
     });
 
     test("should throw on mismatched lengths", () => {
-        expect(() => stats.weightedMean(new Float32Array([1, 2]), new Float32Array([1]))).toThrow("Arrays must have the same length");
+        expect(
+            () => stats.weightedMean(new Float32Array([1, 2]), new Float32Array([1]))
+        ).toThrowError("Arrays must have the same length");
     });
 
     test("should throw on empty arrays", () => {
-        expect(() => stats.weightedMean(new Float32Array([]), new Float32Array([]))).toThrow("Arrays must not be empty");
+        expect(
+            () => stats.weightedMean(new Float32Array([]), new Float32Array([]))
+        ).toThrowError("Arrays must not be empty");
     });
 
     test("should throw on zero-sum weights", () => {
-        expect(() => stats.weightedMean(new Float32Array([1, 2]), new Float32Array([0, 0]))).toThrow("Weights must sum to a positive value");
+        expect(
+            () => stats.weightedMean(new Float32Array([1, 2]), new Float32Array([0, 0]))
+        ).toThrowError("Weights must sum to a positive value");
     });
 });
 
@@ -335,6 +341,6 @@ describe("stats.iqr", () => {
     });
 
     test("should throw on empty array", () => {
-        expect(() => stats.iqr(new Float32Array([]))).toThrow("Array must not be empty");
+        expect(() => stats.iqr(new Float32Array([]))).toThrowError("Array must not be empty");
     });
 });
