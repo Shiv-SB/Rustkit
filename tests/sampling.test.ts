@@ -10,8 +10,8 @@ describe("sampling.softmax", () => {
 
     test("should preserve ordering and match known values", () => {
         const out = sampling.softmax(new Float32Array([1, 2, 3]));
-        expect(out[0]!).toBeLessThan(out[1]!);
-        expect(out[1]!).toBeLessThan(out[2]!);
+        expect(out[0]).toBeLessThan(out[1]!);
+        expect(out[1]).toBeLessThan(out[2]!);
         expect(out[0]).toBeCloseTo(0.0900, 4);
         expect(out[1]).toBeCloseTo(0.2447, 4);
         expect(out[2]).toBeCloseTo(0.6652, 4);
