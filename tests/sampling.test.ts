@@ -6,7 +6,7 @@ describe("sampling.softmax", () => {
         const out = sampling.softmax(new Float32Array([1, 2, 3]));
         const sum = Array.from(out).reduce((s, x) => s + x, 0);
         expect(sum).toBeCloseTo(1, 4);
-    }, { repeats: 100 });
+    }, { repeats: 1_000 });
 
     test("should preserve ordering and match known values", () => {
         const out = sampling.softmax(new Float32Array([1, 2, 3]));
@@ -20,7 +20,9 @@ describe("sampling.softmax", () => {
     test("should be numerically stable for large logits", () => {
         const out = sampling.softmax(new Float32Array([1000, 1010, 990]));
         expect(out[1]).toBeCloseTo(1, 2);
-        expect(Array.from(out).every((x) => Number.isFinite(x))).toBe(true);
+        for (const x of out) {
+            expect(x).toBeFinite();
+        }
     });
 
     test("should not mutate the input", () => {
@@ -31,7 +33,7 @@ describe("sampling.softmax", () => {
     });
 
     test("should throw on empty input", () => {
-        expect(() => sampling.softmax(new Float32Array([]))).toThrow("Vector must not be empty");
+        expect(() => sampling.softmax(new Float32Array([]))).toThrowError("Vector must not be empty");
     });
 });
 
@@ -48,11 +50,13 @@ describe("sampling.logSoftmax", () => {
     test("should be numerically stable for large logits", () => {
         const out = sampling.logSoftmax(new Float32Array([1000, 1010, 990]));
         expect(out[1]).toBeCloseTo(0, 2);
-        expect(Array.from(out).every((x) => Number.isFinite(x))).toBe(true);
+        for (const x of out) {
+            expect(x).toBeFinite();
+        }
     });
 
     test("should throw on empty input", () => {
-        expect(() => sampling.logSoftmax(new Float32Array([]))).toThrow("Vector must not be empty");
+        expect(() => sampling.logSoftmax(new Float32Array([]))).toThrowError("Vector must not be empty");
     });
 });
 
@@ -80,8 +84,13 @@ describe("sampling.temperature", () => {
     });
 
     test("should throw on non-positive temperature", () => {
-        expect(() => sampling.temperature(new Float32Array([1, 2, 3]), 0)).toThrow("temperature must be a positive finite number");
-        expect(() => sampling.temperature(new Float32Array([1, 2, 3]), -1)).toThrow("temperature must be a positive finite number");
+        expect(
+            () => sampling.temperature(new Float32Array([1, 2, 3]), 0)
+        ).toThrowError("temperature must be a positive finite number");
+        
+        expect(
+            () => sampling.temperature(new Float32Array([1, 2, 3]), -1)
+        ).toThrowError("temperature must be a positive finite number");
     });
 });
 
@@ -113,9 +122,9 @@ describe("sampling.topK", () => {
     });
 
     test("should throw on invalid k", () => {
-        expect(() => sampling.topK(new Float32Array([1, 2, 3]), 0)).toThrow("k must be an integer between 1 and logits.length");
-        expect(() => sampling.topK(new Float32Array([1, 2, 3]), 4)).toThrow("k must be an integer between 1 and logits.length");
-        expect(() => sampling.topK(new Float32Array([1, 2, 3]), 1.5)).toThrow("k must be an integer between 1 and logits.length");
+        expect(() => sampling.topK(new Float32Array([1, 2, 3]), 0)).toThrowError("k must be an integer between 1 and logits.length");
+        expect(() => sampling.topK(new Float32Array([1, 2, 3]), 4)).toThrowError("k must be an integer between 1 and logits.length");
+        expect(() => sampling.topK(new Float32Array([1, 2, 3]), 1.5)).toThrowError("k must be an integer between 1 and logits.length");
     });
 });
 
@@ -149,8 +158,8 @@ describe("sampling.topP", () => {
     });
 
     test("should throw on invalid p", () => {
-        expect(() => sampling.topP(new Float32Array([0.5, 0.5]), -0.1)).toThrow("p must be a number between 0 and 1");
-        expect(() => sampling.topP(new Float32Array([0.5, 0.5]), 1.1)).toThrow("p must be a number between 0 and 1");
+        expect(() => sampling.topP(new Float32Array([0.5, 0.5]), -0.1)).toThrowError("p must be a number between 0 and 1");
+        expect(() => sampling.topP(new Float32Array([0.5, 0.5]), 1.1)).toThrowError("p must be a number between 0 and 1");
     });
 });
 
@@ -177,8 +186,8 @@ describe("sampling.minP", () => {
     });
 
     test("should throw on invalid p", () => {
-        expect(() => sampling.minP(new Float32Array([0.5, 0.5]), -0.1)).toThrow("p must be a number between 0 and 1");
-        expect(() => sampling.minP(new Float32Array([0.5, 0.5]), 1.1)).toThrow("p must be a number between 0 and 1");
+        expect(() => sampling.minP(new Float32Array([0.5, 0.5]), -0.1)).toThrowError("p must be a number between 0 and 1");
+        expect(() => sampling.minP(new Float32Array([0.5, 0.5]), 1.1)).toThrowError("p must be a number between 0 and 1");
     });
 });
 
@@ -210,11 +219,15 @@ describe("sampling.repetitionPenalty", () => {
     });
 
     test("should throw on out-of-range seen index", () => {
-        expect(() => sampling.repetitionPenalty(new Float32Array([1, 2, 3]), 1.1, Uint32Array.of(5))).toThrow("seen contains an index out of range");
+        expect(
+            () => sampling.repetitionPenalty(new Float32Array([1, 2, 3]), 1.1, Uint32Array.of(5))
+        ).toThrowError("seen contains an index out of range");
     });
 
     test("should throw on negative penalty", () => {
-        expect(() => sampling.repetitionPenalty(new Float32Array([1, 2, 3]), -1, Uint32Array.of(0))).toThrow("penalty must be a non-negative finite number");
+        expect(
+            () => sampling.repetitionPenalty(new Float32Array([1, 2, 3]), -1, Uint32Array.of(0))
+        ).toThrowError("penalty must be a non-negative finite number");
     });
 });
 
@@ -231,7 +244,7 @@ describe("sampling.categorical", () => {
     }, { repeats: 1_000 });
 
     test("should throw on empty input", () => {
-        expect(() => sampling.categorical(new Float32Array([]), 1)).toThrow("Vector must not be empty");
+        expect(() => sampling.categorical(new Float32Array([]), 1)).toThrowError("Vector must not be empty");
     });
 });
 
@@ -242,6 +255,6 @@ describe("sampling.greedy", () => {
     });
 
     test("should throw on empty input", () => {
-        expect(() => sampling.greedy(new Float32Array([]))).toThrow("Vector must not be empty");
+        expect(() => sampling.greedy(new Float32Array([]))).toThrowError("Vector must not be empty");
     });
 });
