@@ -29,7 +29,7 @@ describe("vector.add", () => {
     test("should throw on mismatched lengths", () => {
         const a = new Float32Array([1, 2, 3]);
         const b = new Float32Array([1, 2]);
-        expect(() => vector.add(a, b)).toThrow("Vectors must have the same length");
+        expect(() => vector.add(a, b)).toThrowError("Vectors must have the same length");
     });
 });
 
@@ -55,7 +55,7 @@ describe("vector.sub", () => {
     test("should throw on mismatched lengths", () => {
         const a = new Float32Array([1, 2]);
         const b = new Float32Array([1, 2, 3]);
-        expect(() => vector.sub(a, b)).toThrow("Vectors must have the same length");
+        expect(() => vector.sub(a, b)).toThrowError("Vectors must have the same length");
     });
 });
 
@@ -81,7 +81,7 @@ describe("vector.mul", () => {
     test("should throw on mismatched lengths", () => {
         const a = new Float32Array([1, 2, 3]);
         const b = new Float32Array([1, 2]);
-        expect(() => vector.mul(a, b)).toThrow("Vectors must have the same length");
+        expect(() => vector.mul(a, b)).toThrowError("Vectors must have the same length");
     });
 });
 
@@ -101,7 +101,7 @@ describe("vector.div", () => {
     test("should throw on mismatched lengths", () => {
         const a = new Float32Array([1, 2]);
         const b = new Float32Array([1]);
-        expect(() => vector.div(a, b)).toThrow("Vectors must have the same length");
+        expect(() => vector.div(a, b)).toThrowError("Vectors must have the same length");
     });
 });
 
@@ -133,7 +133,7 @@ describe("vector.dot", () => {
     test("should throw on mismatched lengths", () => {
         const a = new Float32Array([1, 2, 3]);
         const b = new Float32Array([1, 2]);
-        expect(() => vector.dot(a, b)).toThrow("Vectors must have the same length");
+        expect(() => vector.dot(a, b)).toThrowError("Vectors must have the same length");
     });
 });
 
@@ -159,13 +159,13 @@ describe("vector.cross", () => {
     test("should throw if a is not length 3", () => {
         const a = new Float32Array([1, 2]);
         const b = new Float32Array([1, 2, 3]);
-        expect(() => vector.cross(a, b)).toThrow("Cross product requires vectors of length 3");
+        expect(() => vector.cross(a, b)).toThrowError("Cross product requires vectors of length 3");
     });
 
     test("should throw if b is not length 3", () => {
         const a = new Float32Array([1, 2, 3]);
         const b = new Float32Array([1, 2]);
-        expect(() => vector.cross(a, b)).toThrow("Cross product requires vectors of length 3");
+        expect(() => vector.cross(a, b)).toThrowError("Cross product requires vectors of length 3");
     });
 });
 
@@ -177,7 +177,7 @@ describe("vector.norm", () => {
 
     test("should return 1 for unit vector", () => {
         const a = new Float32Array([1, 0, 0]);
-        expect(vector.norm(a)).toBeCloseTo(1, 5);
+        expect(vector.norm(a)).toBe(1);
     });
 
     test("should return 0 for zero vector", () => {
@@ -275,7 +275,7 @@ describe("vector.argmin", () => {
 
     test("should throw on empty vector", () => {
         const a = new Float32Array([]);
-        expect(() => vector.argmin(a)).toThrow("Vector must not be empty");
+        expect(() => vector.argmin(a)).toThrowError("Vector must not be empty");
     });
 });
 
@@ -307,7 +307,7 @@ describe("vector.argmax", () => {
 
     test("should throw on empty vector", () => {
         const a = new Float32Array([]);
-        expect(() => vector.argmax(a)).toThrow("Vector must not be empty");
+        expect(() => vector.argmax(a)).toThrowError("Vector must not be empty");
     });
 });
 
@@ -361,7 +361,7 @@ describe("vector.mean", () => {
 
     test("should throw on empty vector", () => {
         const a = new Float32Array([]);
-        expect(() => vector.mean(a)).toThrow("Vector must not be empty");
+        expect(() => vector.mean(a)).toThrowError("Vector must not be empty");
     });
 });
 
@@ -395,7 +395,7 @@ describe("vector.lerp", () => {
     test("should throw on mismatched lengths", () => {
         const a = new Float32Array([1, 2]);
         const b = new Float32Array([1, 2, 3]);
-        expect(() => vector.lerp(a, b, 0.5)).toThrow("Vectors must have the same length");
+        expect(() => vector.lerp(a, b, 0.5)).toThrowError("Vectors must have the same length");
     });
 });
 
@@ -459,7 +459,7 @@ describe("vector.min", () => {
     });
 
     test("should throw on mismatched lengths", () => {
-        expect(() => vector.min(new Float32Array([1, 2]), new Float32Array([1]))).toThrow("Vectors must have the same length");
+        expect(() => vector.min(new Float32Array([1, 2]), new Float32Array([1]))).toThrowError("Vectors must have the same length");
     });
 });
 
@@ -473,7 +473,9 @@ describe("vector.max", () => {
     });
 
     test("should throw on mismatched lengths", () => {
-        expect(() => vector.max(new Float32Array([1]), new Float32Array([1, 2]))).toThrow("Vectors must have the same length");
+        expect(
+            () => vector.max(new Float32Array([1]), new Float32Array([1, 2]))
+        ).toThrowError("Vectors must have the same length");
     });
 });
 
@@ -497,8 +499,8 @@ describe("vector.sqrt", () => {
 describe("vector.reciprocal", () => {
     test("should compute element-wise reciprocal", () => {
         const result = vector.reciprocal(new Float32Array([2, 4, 5]));
-        expect(result[0]).toBeCloseTo(0.5, 5);
-        expect(result[1]).toBeCloseTo(0.25, 5);
+        expect(result[0]).toBe(0.5);
+        expect(result[1]).toBe(0.25);
         expect(result[2]).toBeCloseTo(0.2, 5);
     });
 
