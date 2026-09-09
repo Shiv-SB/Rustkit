@@ -235,6 +235,39 @@ const packed = quantize.quantizeInt4(new Float32Array([0.5, -0.5, 1, -1]));
 
 Also: `dequantizeInt4`.
 
+### eval
+
+Machine-learning evaluation metrics for comparing generated text against references.
+
+```ts
+import { eval as e } from "rustkit";
+
+e.bleu("the cat sat", "the cat is sat");              // ~0.472
+e.rougeL("the cat sat on the mat", "the cat sat");    // ~0.667
+e.perplexity(new Float32Array([-0.5, -1.2, -0.3]));   // ~1.88
+e.tokenF1(new Int32Array([1, 2, 3]), new Int32Array([2, 3, 4])); // 0.5
+e.exactMatch("hello", "hello");                        // true
+```
+
+Also: `tokenF1`, `exactMatch`.
+
+### sampling
+
+LLM sampling strategies — softmax, nucleus, top-k, min-p, repetition penalty, and more.
+
+```ts
+import { sampling } from "rustkit";
+
+sampling.softmax(new Float32Array([1, 2, 3]));        // [0.09, 0.24, 0.67]
+sampling.topP(new Float32Array([0.1, 0.2, 0.3, 0.4]), 0.7); // nucleus-sampled probs
+sampling.topK(new Float32Array([1, 2, 3, 4]), 2);    // keeps top 2 logits
+sampling.minP(new Float32Array([0.5, 0.3, 0.1, 0.1]), 0.1); // min-p filtered probs
+sampling.categorical(new Float32Array([0.1, 0.9]), 42); // 1
+sampling.greedy(new Float32Array([0.1, 0.5, 0.4]));  // 1
+```
+
+Also: `logSoftmax`, `temperature`, `repetitionPenalty`.
+
 ### config
 
 Runtime introspection: the loaded library's version, resolved platform, native binary path, and SIMD backend. Note that `config` is a named export, not a namespace.
@@ -349,7 +382,7 @@ The pipeline runs, in order:
 3. `verify:platforms` — hard-fail if any platform binary is missing (dry-run warns instead)
 4. `bun test` — full TS suite
 5. `build` — bundle `dist/`
-6. `smoke` — pack the tarball, install it in a temp Bun project, exercise all 13 modules
+6. `smoke` — pack the tarball, install it in a temp Bun project, exercise all 15 modules
 7. `npm publish` — only with `--publish`
 
 Always run the dry-run first and inspect the output before shipping. The smoke step verifies the actual tarball, not the working tree.

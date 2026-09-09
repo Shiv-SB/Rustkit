@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Eval module: BLEU, ROUGE-L, perplexity, token F1, exact match — ML evaluation metrics
+- Sampling module: softmax, logSoftmax, temperature, topK, topP, minP, repetitionPenalty, categorical, greedy — LLM sampling strategies
+- SIMD kernels for additional hot reductions
 - GitHub Actions: CI workflow (Linux x64 + macOS arm64 matrix, Rust + TS tests), CodeQL analysis, and an OIDC-based npm publish workflow (`v*.*.*` tags), Dependabot config, issue/PR templates, and a security policy
 
 ## [0.1.0] - 2026-09-03
